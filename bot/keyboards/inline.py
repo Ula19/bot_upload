@@ -1,4 +1,7 @@
-"""Клавиатуры бота — кнопки с эмодзи и стилями (Bot API 9.4)"""
+"""Клавиатуры бота — цветные кнопки (Bot API 9.4)
+Стили: primary (синий), success (зелёный), danger (красный)
+TODO: добавить icon_custom_emoji_id когда юзер пришлёт ID
+"""
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 
@@ -9,16 +12,19 @@ def get_start_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton(
                 text="📥 Скачать видео",
                 callback_data="download_video",
+                style="primary",
             ),
         ],
         [
             InlineKeyboardButton(
                 text="📊 Мой профиль",
                 callback_data="my_profile",
+                style="success",
             ),
             InlineKeyboardButton(
                 text="❓ Помощь",
                 callback_data="help",
+                style="success",
             ),
         ],
     ]
@@ -26,12 +32,13 @@ def get_start_keyboard() -> InlineKeyboardMarkup:
 
 
 def get_back_keyboard() -> InlineKeyboardMarkup:
-    """Кнопка 'Назад' в главное меню"""
+    """Кнопка 'Назад' — красная"""
     buttons = [
         [
             InlineKeyboardButton(
                 text="◀️ Назад",
                 callback_data="back_to_menu",
+                style="danger",
             ),
         ],
     ]
@@ -48,13 +55,14 @@ def get_subscription_keyboard(
             InlineKeyboardButton(
                 text=f"🔔 {ch['title']}",
                 url=ch["invite_link"],
+                style="primary",
             ),
         ])
-    # кнопка проверки подписки
     buttons.append([
         InlineKeyboardButton(
             text="✅ Проверить подписку",
             callback_data="check_subscription",
+            style="success",
         ),
     ])
     return InlineKeyboardMarkup(inline_keyboard=buttons)

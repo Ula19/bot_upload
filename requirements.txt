@@ -1,5 +1,5 @@
 # Основные зависимости
-aiogram==3.17.0
+aiogram==3.26.0
 SQLAlchemy==2.0.38
 asyncpg==0.30.0
 alembic==1.14.1

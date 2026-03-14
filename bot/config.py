@@ -13,11 +13,18 @@ class Settings(BaseSettings):
     db_user: str = "postgres"
     db_password: str = ""
 
-    # Админы бота (список user_id)
-    admin_ids: list[int] = []
+    # Админы бота (через запятую в .env, например: 123,456)
+    admin_ids: str = ""
 
     # Кэш скачиваний (дни)
     cache_ttl_days: int = 30
+
+    @property
+    def admin_id_list(self) -> list[int]:
+        """Парсит admin_ids из строки в список int"""
+        if not self.admin_ids:
+            return []
+        return [int(x.strip()) for x in self.admin_ids.split(",") if x.strip()]
 
     @property
     def db_url(self) -> str:
@@ -28,6 +35,7 @@ class Settings(BaseSettings):
         )
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+
 
 
 # глобальный экземпляр настроек
