@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "server",
+  "dolt_database": "bot_4_insta",
+  "project_id": "3b4e15ef-b514-450b-b087-e9cf510ec926"
+}
