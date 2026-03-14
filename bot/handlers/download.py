@@ -40,8 +40,14 @@ async def handle_instagram_link(message: Message) -> None:
         )
         return
 
-    # очищаем URL
-    clean_url = clean_instagram_url(text)
+    await _process_download(message, text, lang)
+
+
+async def _process_download(
+    message: Message, raw_url: str, lang: str = "ru"
+) -> None:
+    """Скачивает и отправляет медиа — вызывается из хэндлера и после подписки"""
+    clean_url = clean_instagram_url(raw_url)
 
     # обновляем юзера в БД + проверяем кэш
     async with async_session() as session:
@@ -54,7 +60,6 @@ async def handle_instagram_link(message: Message) -> None:
         cached = await get_cached_download(session, clean_url)
 
     if cached:
-        # отправляем из кэша — мгновенно!
         logger.info(f"Кэш найден для {clean_url}, отправляем file_id")
         await _send_cached(message, cached.file_id, cached.media_type, clean_url)
         return
@@ -64,7 +69,6 @@ async def handle_instagram_link(message: Message) -> None:
 
     result = None
     try:
-        # выбираем метод: Stories или Cobalt
         if is_story_url(clean_url):
             story_data = await download_story(clean_url, downloader.download_dir)
             result = DownloadResult(
@@ -75,16 +79,13 @@ async def handle_instagram_link(message: Message) -> None:
         else:
             result = await downloader.download(clean_url)
 
-        # проверяем размер файла (Telegram лимит 50 МБ)
         file_size = os.path.getsize(result.file_path)
         if file_size > 50 * 1024 * 1024:
             await status_msg.edit_text(t("error.too_large", lang))
             return
 
-        # отправляем и получаем file_id
         file_id = await _send_media(message, result)
 
-        # сохраняем в кэш
         if file_id:
             async with async_session() as session:
                 await save_download(
@@ -93,7 +94,6 @@ async def handle_instagram_link(message: Message) -> None:
                     file_id=file_id,
                     media_type=result.media_type,
                 )
-                # обновляем счётчик скачиваний юзера
                 user_obj = await get_or_create_user(
                     session=session,
                     telegram_id=message.from_user.id,
@@ -103,7 +103,6 @@ async def handle_instagram_link(message: Message) -> None:
                 user_obj.download_count += 1
                 await session.commit()
 
-        # удаляем сообщение "Скачиваю..."
         await status_msg.delete()
 
     except Exception as e:
@@ -112,7 +111,6 @@ async def handle_instagram_link(message: Message) -> None:
         await status_msg.edit_text(error_text)
 
     finally:
-        # чистим временные файлы
         if result:
             downloader.cleanup(result)
 

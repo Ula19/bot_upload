@@ -6,6 +6,7 @@ import logging
 from typing import Any, Awaitable, Callable
 
 from aiogram import BaseMiddleware, Bot
+from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message, TelegramObject
 
 from bot.config import settings
@@ -75,6 +76,14 @@ class SubscriptionMiddleware(BaseMiddleware):
 
         text = t("sub.welcome", lang)
         keyboard = get_subscription_keyboard(not_subscribed, lang)
+
+        # запоминаем ссылку если юзер отправил Instagram URL
+        if isinstance(event, Message) and event.text:
+            from bot.utils.helpers import is_instagram_url
+            if is_instagram_url(event.text.strip()):
+                state: FSMContext | None = data.get("state")
+                if state:
+                    await state.update_data(pending_url=event.text.strip())
 
         if isinstance(event, Message):
             await event.answer(text, reply_markup=keyboard, parse_mode="HTML")

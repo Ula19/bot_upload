@@ -3,6 +3,7 @@ import logging
 
 from aiogram import F, Router
 from aiogram.filters import CommandStart
+from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from bot.config import settings
@@ -167,7 +168,9 @@ async def set_language(callback: CallbackQuery) -> None:
 # === Проверка подписки ===
 
 @router.callback_query(F.data == "check_subscription")
-async def check_subscription(callback: CallbackQuery) -> None:
+async def check_subscription(
+    callback: CallbackQuery, state: FSMContext,
+) -> None:
     """Проверка подписки на каналы"""
     from bot.database.crud import get_active_channels
     from bot.keyboards.inline import get_subscription_keyboard
@@ -201,6 +204,11 @@ async def check_subscription(callback: CallbackQuery) -> None:
             t("sub.check_alert_fail", lang), show_alert=True,
         )
     else:
+        # проверяем есть ли отложенная ссылка
+        fsm_data = await state.get_data()
+        pending_url = fsm_data.get("pending_url")
+        await state.clear()  # чистим state
+
         await callback.message.edit_text(
             t("sub.success", lang, name=callback.from_user.first_name),
             reply_markup=get_start_keyboard(
@@ -209,3 +217,12 @@ async def check_subscription(callback: CallbackQuery) -> None:
             parse_mode="HTML",
         )
         await callback.answer(t("sub.check_alert_ok", lang))
+
+        # автоматически обрабатываем отложенную ссылку
+        if pending_url:
+            try:
+                from bot.handlers.download import _process_download
+                await _process_download(callback.message, pending_url, lang)
+            except Exception as e:
+                logger.error(f"Ошибка обработки pending_url: {e}")
+
