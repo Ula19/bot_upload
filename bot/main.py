@@ -11,6 +11,7 @@ from bot.config import settings
 from bot.database import engine
 from bot.database.models import Base
 from bot.handlers import download, start
+from bot.middlewares.subscription import SubscriptionMiddleware
 
 # настраиваем логирование
 logging.basicConfig(
@@ -54,6 +55,10 @@ async def main() -> None:
     # регистрируем хэндлеры (порядок важен!)
     dp.include_router(start.router)      # /start и меню — первый
     dp.include_router(download.router)   # ссылки Instagram — второй
+
+    # мидлварь проверки подписки на каналы
+    dp.message.middleware(SubscriptionMiddleware())
+    dp.callback_query.middleware(SubscriptionMiddleware())
 
     # хуки запуска/остановки
     dp.startup.register(on_startup)

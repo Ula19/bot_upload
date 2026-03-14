@@ -124,3 +124,54 @@ async def help_handler(callback: CallbackQuery) -> None:
         parse_mode="HTML",
     )
     await callback.answer()
+
+
+@router.callback_query(F.data == "check_subscription")
+async def check_subscription(callback: CallbackQuery) -> None:
+    """Проверка подписки на каналы"""
+    from bot.database.crud import get_active_channels
+    from bot.middlewares.subscription import is_subscribed
+
+    async with async_session() as session:
+        channels = await get_active_channels(session)
+
+    if not channels:
+        await callback.answer("✅ Подписка не требуется!")
+        return
+
+    bot = callback.bot
+    not_subscribed = []
+
+    for channel in channels:
+        if not await is_subscribed(bot, channel.channel_id, callback.from_user.id):
+            not_subscribed.append({
+                "title": channel.title,
+                "invite_link": channel.invite_link,
+            })
+
+    if not_subscribed:
+        # ещё не подписался
+        from bot.keyboards.inline import get_subscription_keyboard
+        text = (
+            "❌ <b>Ты ещё не подписался на все каналы:</b>\n\n"
+            "Подпишись и нажми «✅ Проверить подписку» ещё раз."
+        )
+        await callback.message.edit_text(
+            text,
+            reply_markup=get_subscription_keyboard(not_subscribed),
+            parse_mode="HTML",
+        )
+        await callback.answer("❌ Подпишись на все каналы!", show_alert=True)
+    else:
+        # подписан — показываем главное меню
+        welcome_text = (
+            f"✅ <b>Отлично, {callback.from_user.first_name}!</b>\n\n"
+            "Теперь ты можешь пользоваться ботом! 🚀\n\n"
+            "Отправь ссылку на пост, Reels или историю Instagram."
+        )
+        await callback.message.edit_text(
+            welcome_text,
+            reply_markup=get_start_keyboard(),
+            parse_mode="HTML",
+        )
+        await callback.answer("✅ Подписка подтверждена!")
