@@ -10,7 +10,7 @@ from sqlalchemy import text
 from bot.config import settings
 from bot.database import engine
 from bot.database.models import Base
-from bot.handlers import start
+from bot.handlers import download, start
 
 # настраиваем логирование
 logging.basicConfig(
@@ -51,8 +51,9 @@ async def main() -> None:
     # диспетчер для обработки событий
     dp = Dispatcher()
 
-    # регистрируем хэндлеры
-    dp.include_router(start.router)
+    # регистрируем хэндлеры (порядок важен!)
+    dp.include_router(start.router)      # /start и меню — первый
+    dp.include_router(download.router)   # ссылки Instagram — второй
 
     # хуки запуска/остановки
     dp.startup.register(on_startup)
