@@ -1,10 +1,12 @@
-"""Сервис скачивания Instagram — через yt-dlp"""
+"""Сервис скачивания Instagram — yt-dlp для видео, aiohttp для фото"""
 import asyncio
 import logging
 import os
+import re
 import tempfile
 from dataclasses import dataclass
 
+import aiohttp
 import yt_dlp
 
 logger = logging.getLogger(__name__)
@@ -16,83 +18,155 @@ class DownloadResult:
     file_path: str       # путь к файлу
     media_type: str      # video, photo
     title: str           # название поста
-    duration: int | None # длительность в секундах (для видео)
+    duration: int | None  # длительность в секундах (для видео)
     thumbnail: str | None  # путь к превью
 
 
 class InstagramDownloader:
-    """Скачивает контент из Instagram через yt-dlp"""
+    """Скачивает контент из Instagram — видео через yt-dlp, фото через aiohttp"""
 
     def __init__(self):
         # папка для временных файлов
         self.download_dir = tempfile.mkdtemp(prefix="insta_bot_")
 
     def _get_yt_dlp_options(self, output_path: str) -> dict:
-        """Настройки yt-dlp для скачивания"""
+        """Настройки yt-dlp для скачивания видео"""
         return {
             "outtmpl": output_path,
-            "format": "best[ext=mp4]/best",  # лучшее качество в mp4
+            "format": "best[ext=mp4]/best",
             "quiet": True,
             "no_warnings": True,
             "extract_flat": False,
-            # ограничение размера файла (50 МБ — лимит Telegram)
             "max_filesize": 50 * 1024 * 1024,
-            # не скачивать плейлисты целиком
             "noplaylist": True,
-            # пишем превью
             "writethumbnail": True,
-            # таймаут
             "socket_timeout": 30,
         }
 
     async def download(self, url: str) -> DownloadResult:
-        """Скачивает медиа по ссылке Instagram (асинхронно)"""
-        # генерим уникальное имя файла
+        """Скачивает медиа по ссылке Instagram (сначала yt-dlp, потом фото)"""
+        # сначала пробуем через yt-dlp (для видео/reels)
+        try:
+            result = await self._download_video(url)
+            if result:
+                return result
+        except Exception as e:
+            logger.info(f"yt-dlp не смог скачать {url}: {e}")
+
+        # если yt-dlp не справился — пробуем скачать как фото
+        try:
+            result = await self._download_photo(url)
+            if result:
+                return result
+        except Exception as e:
+            logger.error(f"Фото тоже не удалось: {e}")
+
+        raise FileNotFoundError("Не удалось скачать медиа. Проверь ссылку.")
+
+    async def _download_video(self, url: str) -> DownloadResult | None:
+        """Скачивает видео через yt-dlp"""
         output_path = os.path.join(self.download_dir, "%(id)s.%(ext)s")
         opts = self._get_yt_dlp_options(output_path)
 
-        # yt-dlp синхронный — запускаем в отдельном потоке
         loop = asyncio.get_event_loop()
-        info = await loop.run_in_executor(None, self._download_sync, url, opts)
+        info = await loop.run_in_executor(None, self._yt_dlp_sync, url, opts)
 
-        # определяем путь и тип
-        file_path = info.get("requested_downloads", [{}])[0].get("filepath", "")
-        duration = info.get("duration")
+        # если это фото-пост — yt-dlp вернёт пустой playlist
+        if info.get("_type") == "playlist" and not info.get("entries"):
+            return None
 
-        # ищем превью
-        thumbnail_path = None
-        thumb_candidates = [
-            file_path.rsplit(".", 1)[0] + ".jpg",
-            file_path.rsplit(".", 1)[0] + ".webp",
-            file_path.rsplit(".", 1)[0] + ".png",
-        ]
-        for thumb in thumb_candidates:
-            if os.path.exists(thumb):
-                thumbnail_path = thumb
-                break
+        file_path = self._find_downloaded_file(info)
+        if not file_path or not os.path.exists(file_path):
+            return None
 
         # определяем тип медиа
         ext = os.path.splitext(file_path)[1].lower()
-        if ext in (".mp4", ".webm", ".mkv", ".mov"):
-            media_type = "video"
-        elif ext in (".jpg", ".jpeg", ".png", ".webp"):
+        if ext in (".jpg", ".jpeg", ".png", ".webp"):
             media_type = "photo"
         else:
-            media_type = "video"  # по умолчанию
+            media_type = "video"
 
         return DownloadResult(
             file_path=file_path,
             media_type=media_type,
             title=info.get("title", "Instagram"),
-            duration=duration,
-            thumbnail=thumbnail_path,
+            duration=info.get("duration"),
+            thumbnail=None,
         )
 
-    def _download_sync(self, url: str, opts: dict) -> dict:
-        """Синхронная обёртка yt-dlp (для run_in_executor)"""
+    async def _download_photo(self, url: str) -> DownloadResult | None:
+        """Скачивает фото через Instagram embed API"""
+        # получаем URL фото через oEmbed API
+        oembed_url = f"https://api.instagram.com/oembed/?url={url}"
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(oembed_url, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                if resp.status != 200:
+                    logger.warning(f"oEmbed вернул {resp.status}")
+                    return None
+                data = await resp.json()
+
+        thumbnail_url = data.get("thumbnail_url")
+        title = data.get("title", "Instagram")
+
+        if not thumbnail_url:
+            logger.warning("oEmbed не вернул thumbnail_url")
+            return None
+
+        # скачиваем фото
+        post_id = url.rstrip("/").split("/")[-1]
+        file_path = os.path.join(self.download_dir, f"{post_id}.jpg")
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(thumbnail_url, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+                if resp.status != 200:
+                    return None
+                content = await resp.read()
+                with open(file_path, "wb") as f:
+                    f.write(content)
+
+        logger.info(f"Фото скачано: {file_path} ({len(content)} байт)")
+
+        return DownloadResult(
+            file_path=file_path,
+            media_type="photo",
+            title=title,
+            duration=None,
+            thumbnail=None,
+        )
+
+    def _find_downloaded_file(self, info: dict) -> str:
+        """Ищет скачанный файл разными способами"""
+        # способ 1: из requested_downloads
+        downloads = info.get("requested_downloads", [])
+        if downloads and downloads[0].get("filepath"):
+            return downloads[0]["filepath"]
+
+        # способ 2: собираем путь из id и ext
+        video_id = info.get("id", "")
+        ext = info.get("ext", "mp4")
+        if video_id:
+            candidate = os.path.join(self.download_dir, f"{video_id}.{ext}")
+            if os.path.exists(candidate):
+                return candidate
+
+        # способ 3: ищем самый свежий файл в папке
+        files = []
+        for f in os.listdir(self.download_dir):
+            full = os.path.join(self.download_dir, f)
+            if os.path.isfile(full) and not f.endswith((".json", ".txt")):
+                files.append((os.path.getmtime(full), full))
+
+        if files:
+            files.sort(reverse=True)
+            return files[0][1]
+
+        return ""
+
+    def _yt_dlp_sync(self, url: str, opts: dict) -> dict:
+        """Синхронная обёртка yt-dlp"""
         with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            return info
+            return ydl.extract_info(url, download=True)
 
     def cleanup(self, result: DownloadResult) -> None:
         """Удаляет временные файлы после отправки"""

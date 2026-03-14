@@ -112,7 +112,7 @@ async def _send_media(message: Message, result: DownloadResult) -> str | None:
         sent = await message.answer_video(
             video=file,
             caption=f"🎬 {result.title}" if result.title else None,
-            duration=result.duration,
+            duration=int(result.duration) if result.duration else None,
         )
         return sent.video.file_id
 
