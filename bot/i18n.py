@@ -219,6 +219,124 @@ TRANSLATIONS = {
         "ru": "✅ Язык изменён на русский",
         "uz": "✅ Til o'zbek tiliga o'zgartirildi",
     },
+
+    # === Админ-панель ===
+    "admin.title": {
+        "ru": "🔧 <b>Админ-панель</b>\n\nВыбери действие:",
+        "uz": "🔧 <b>Admin panel</b>\n\nAmalni tanlang:",
+    },
+    "admin.no_access": {
+        "ru": "🚫 У тебя нет доступа к админке.",
+        "uz": "🚫 Sizda admin panelga kirish huquqi yo'q.",
+    },
+    "admin.stats": {
+        "ru": (
+            "📊 <b>Статистика бота</b>\n\n"
+            "👥 Всего юзеров: <b>{total_users}</b>\n"
+            "🆕 За сегодня: <b>{today_users}</b>\n"
+            "📥 Всего скачиваний: <b>{total_downloads}</b>\n"
+            "📢 Каналов: <b>{total_channels}</b>"
+        ),
+        "uz": (
+            "📊 <b>Bot statistikasi</b>\n\n"
+            "👥 Jami foydalanuvchilar: <b>{total_users}</b>\n"
+            "🆕 Bugun: <b>{today_users}</b>\n"
+            "📥 Jami yuklashlar: <b>{total_downloads}</b>\n"
+            "📢 Kanallar: <b>{total_channels}</b>"
+        ),
+    },
+    "admin.channels_empty": {
+        "ru": "📢 <b>Каналы</b>\n\nСписок пуст. Добавь канал кнопкой ниже.",
+        "uz": "📢 <b>Kanallar</b>\n\nRo'yxat bo'sh. Quyidagi tugma orqali kanal qo'shing.",
+    },
+    "admin.channels_title": {
+        "ru": "📢 <b>Каналы для подписки:</b>\n",
+        "uz": "📢 <b>Obuna kanallari:</b>\n",
+    },
+    "admin.add_channel_id": {
+        "ru": (
+            "📢 <b>Добавление канала</b>\n\n"
+            "Отправь <b>ID канала</b> (числовой, например <code>-1001234567890</code>)\n\n"
+            "💡 Узнать ID: добавь бота @getmyid_bot в канал"
+        ),
+        "uz": (
+            "📢 <b>Kanal qo'shish</b>\n\n"
+            "<b>Kanal ID</b> raqamini yuboring (masalan <code>-1001234567890</code>)\n\n"
+            "💡 ID bilish: @getmyid_bot ni kanalga qo'shing"
+        ),
+    },
+    "admin.add_channel_title": {
+        "ru": "✏️ Теперь отправь <b>название канала</b> (для отображения юзеру):",
+        "uz": "✏️ Endi <b>kanal nomini</b> yuboring (foydalanuvchiga ko'rsatiladi):",
+    },
+    "admin.add_channel_link": {
+        "ru": (
+            "🔗 Теперь отправь <b>ссылку или юзернейм канала</b>\n\n"
+            "Принимаю любой формат:\n"
+            "• <code>https://t.me/your_channel</code>\n"
+            "• <code>@your_channel</code>\n"
+            "• <code>your_channel</code>"
+        ),
+        "uz": (
+            "🔗 Endi <b>kanal havolasi yoki username</b> yuboring\n\n"
+            "Istalgan formatda:\n"
+            "• <code>https://t.me/your_channel</code>\n"
+            "• <code>@your_channel</code>\n"
+            "• <code>your_channel</code>"
+        ),
+    },
+    "admin.channel_added": {
+        "ru": "✅ <b>Канал добавлен!</b>",
+        "uz": "✅ <b>Kanal qo'shildi!</b>",
+    },
+    "admin.confirm_delete": {
+        "ru": "⚠️ <b>Удалить канал?</b>\n\nID: <code>{channel_id}</code>\n\nЭто действие нельзя отменить.",
+        "uz": "⚠️ <b>Kanalni o'chirishni xohlaysizmi?</b>\n\nID: <code>{channel_id}</code>\n\nBu amalni qaytarib bo'lmaydi.",
+    },
+    "admin.id_not_number": {
+        "ru": "❌ ID должен быть числом. Попробуй ещё раз:",
+        "uz": "❌ ID raqam bo'lishi kerak. Qayta urinib ko'ring:",
+    },
+    "admin.title_too_long": {
+        "ru": "❌ Название слишком длинное (макс 200 символов)",
+        "uz": "❌ Nom juda uzun (maks 200 belgi)",
+    },
+    "admin.link_invalid": {
+        "ru": "❌ Не удалось распознать ссылку.\nПопробуй ещё:",
+        "uz": "❌ Havolani aniqlab bo'lmadi.\nQayta urinib ko'ring:",
+    },
+    "btn.admin_stats": {
+        "ru": "📊 Статистика",
+        "uz": "📊 Statistika",
+    },
+    "btn.admin_channels": {
+        "ru": "📢 Каналы",
+        "uz": "📢 Kanallar",
+    },
+    "btn.admin_home": {
+        "ru": "🏠 Главное меню",
+        "uz": "🏠 Bosh menyu",
+    },
+    "btn.admin_add": {
+        "ru": "➕ Добавить канал",
+        "uz": "➕ Kanal qo'shish",
+    },
+    "btn.admin_back": {
+        "ru": "◀️ Назад",
+        "uz": "◀️ Orqaga",
+    },
+    "btn.admin_cancel": {
+        "ru": "❌ Отмена",
+        "uz": "❌ Bekor qilish",
+    },
+    "btn.admin_confirm_del": {
+        "ru": "✅ Да, удалить",
+        "uz": "✅ Ha, o'chirish",
+    },
+    "btn.admin_cancel_del": {
+        "ru": "❌ Отмена",
+        "uz": "❌ Bekor qilish",
+    },
 }
 
 

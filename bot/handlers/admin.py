@@ -11,16 +11,18 @@ from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
 from bot.config import settings
 from bot.database import async_session
 from bot.database.crud import (
     add_channel,
     get_active_channels,
+    get_user_language,
     get_user_stats,
     remove_channel,
 )
+from bot.i18n import t
 from bot.keyboards.admin import (
     get_admin_keyboard,
     get_cancel_keyboard,
@@ -34,6 +36,12 @@ router = Router()
 def is_admin(user_id: int) -> bool:
     """Проверяет, админ ли юзер"""
     return user_id in settings.admin_id_list
+
+
+async def _get_lang(user_id: int) -> str:
+    """Получает язык админа"""
+    async with async_session() as session:
+        return await get_user_language(session, user_id)
 
 
 # === FSM для добавления канала (пошаговый ввод) ===
@@ -50,13 +58,14 @@ class AddChannelStates(StatesGroup):
 async def cmd_admin(message: Message) -> None:
     """Главное меню админки"""
     if not is_admin(message.from_user.id):
-        await message.answer("🚫 У тебя нет доступа к админке.")
+        lang = await _get_lang(message.from_user.id)
+        await message.answer(t("admin.no_access", lang))
         return
 
+    lang = await _get_lang(message.from_user.id)
     await message.answer(
-        "🔧 <b>Админ-панель</b>\n\n"
-        "Выбери действие:",
-        reply_markup=get_admin_keyboard(),
+        t("admin.title", lang),
+        reply_markup=get_admin_keyboard(lang),
     )
 
 
@@ -69,20 +78,15 @@ async def admin_stats(callback: CallbackQuery) -> None:
         await callback.answer("🚫 Нет доступа")
         return
 
+    lang = await _get_lang(callback.from_user.id)
+
     async with async_session() as session:
         stats = await get_user_stats(session)
 
-    text = (
-        "📊 <b>Статистика бота</b>\n\n"
-        f"👥 Всего юзеров: <b>{stats['total_users']}</b>\n"
-        f"🆕 За сегодня: <b>{stats['today_users']}</b>\n"
-        f"📥 Всего скачиваний: <b>{stats['total_downloads']}</b>\n"
-        f"📢 Каналов: <b>{stats['total_channels']}</b>"
-    )
-
     try:
         await callback.message.edit_text(
-            text, reply_markup=get_admin_keyboard(),
+            t("admin.stats", lang, **stats),
+            reply_markup=get_admin_keyboard(lang),
         )
     except TelegramBadRequest:
         pass  # текст не изменился — ок
@@ -98,23 +102,28 @@ async def admin_channels(callback: CallbackQuery) -> None:
         await callback.answer("🚫 Нет доступа")
         return
 
+    lang = await _get_lang(callback.from_user.id)
+
     async with async_session() as session:
         channels = await get_active_channels(session)
 
     if not channels:
-        text = "📢 <b>Каналы</b>\n\nСписок пуст. Добавь канал кнопкой ниже."
+        text = t("admin.channels_empty", lang)
     else:
-        lines = ["📢 <b>Каналы для подписки:</b>\n"]
+        lines = [t("admin.channels_title", lang)]
         for i, ch in enumerate(channels, 1):
             lines.append(
                 f"{i}. <b>{ch.title}</b>\n"
                 f"   ID: <code>{ch.channel_id}</code>\n"
-                f"   Ссылка: {ch.invite_link}"
+                f"   🔗 {ch.invite_link}"
             )
         text = "\n".join(lines)
 
     await callback.message.edit_text(
-        text, reply_markup=get_channels_keyboard(channels if channels else None),
+        text,
+        reply_markup=get_channels_keyboard(
+            channels if channels else None, lang
+        ),
     )
     await callback.answer()
 
@@ -128,11 +137,12 @@ async def start_add_channel(callback: CallbackQuery, state: FSMContext) -> None:
         await callback.answer("🚫 Нет доступа")
         return
 
+    lang = await _get_lang(callback.from_user.id)
+    await state.update_data(lang=lang)
+
     await callback.message.edit_text(
-        "📢 <b>Добавление канала</b>\n\n"
-        "Отправь <b>ID канала</b> (числовой, например <code>-1001234567890</code>)\n\n"
-        "💡 Узнать ID: добавь бота @getmyid_bot в канал",
-        reply_markup=get_cancel_keyboard(),
+        t("admin.add_channel_id", lang),
+        reply_markup=get_cancel_keyboard(lang),
     )
     await state.set_state(AddChannelStates.waiting_channel_id)
     await callback.answer()
@@ -144,19 +154,22 @@ async def process_channel_id(message: Message, state: FSMContext) -> None:
     if not is_admin(message.from_user.id):
         return
 
+    data = await state.get_data()
+    lang = data.get("lang", "ru")
+
     try:
         channel_id = int(message.text.strip())
     except ValueError:
         await message.answer(
-            "❌ ID должен быть числом. Попробуй ещё раз:",
-            reply_markup=get_cancel_keyboard(),
+            t("admin.id_not_number", lang),
+            reply_markup=get_cancel_keyboard(lang),
         )
         return
 
     await state.update_data(channel_id=channel_id)
     await message.answer(
-        "✏️ Теперь отправь <b>название канала</b> (для отображения юзеру):",
-        reply_markup=get_cancel_keyboard(),
+        t("admin.add_channel_title", lang),
+        reply_markup=get_cancel_keyboard(lang),
     )
     await state.set_state(AddChannelStates.waiting_title)
 
@@ -167,19 +180,18 @@ async def process_title(message: Message, state: FSMContext) -> None:
     if not is_admin(message.from_user.id):
         return
 
+    data = await state.get_data()
+    lang = data.get("lang", "ru")
+
     title = message.text.strip()
     if len(title) > 200:
-        await message.answer("❌ Название слишком длинное (макс 200 символов)")
+        await message.answer(t("admin.title_too_long", lang))
         return
 
     await state.update_data(title=title)
     await message.answer(
-        "🔗 Теперь отправь <b>ссылку или юзернейм канала</b>\n\n"
-        "Принимаю любой формат:\n"
-        "• <code>https://t.me/your_channel</code>\n"
-        "• <code>@your_channel</code>\n"
-        "• <code>your_channel</code>",
-        reply_markup=get_cancel_keyboard(),
+        t("admin.add_channel_link", lang),
+        reply_markup=get_cancel_keyboard(lang),
     )
     await state.set_state(AddChannelStates.waiting_invite_link)
 
@@ -190,17 +202,18 @@ async def process_invite_link(message: Message, state: FSMContext) -> None:
     if not is_admin(message.from_user.id):
         return
 
+    data = await state.get_data()
+    lang = data.get("lang", "ru")
+
     raw = message.text.strip()
-    # приводим к единому формату https://t.me/...
     invite_link = _normalize_channel_link(raw)
     if not invite_link:
         await message.answer(
-            "❌ Не удалось распознать ссылку.\nПопробуй ещё:",
-            reply_markup=get_cancel_keyboard(),
+            t("admin.link_invalid", lang),
+            reply_markup=get_cancel_keyboard(lang),
         )
         return
 
-    data = await state.get_data()
     await state.clear()
 
     try:
@@ -212,16 +225,16 @@ async def process_invite_link(message: Message, state: FSMContext) -> None:
                 invite_link=invite_link,
             )
         await message.answer(
-            f"✅ <b>Канал добавлен!</b>\n\n"
+            f"{t('admin.channel_added', lang)}\n\n"
             f"📢 {channel.title}\n"
             f"🆔 <code>{channel.channel_id}</code>\n"
             f"🔗 {channel.invite_link}",
-            reply_markup=get_admin_keyboard(),
+            reply_markup=get_admin_keyboard(lang),
         )
     except ValueError as e:
         await message.answer(
             f"❌ {e}",
-            reply_markup=get_admin_keyboard(),
+            reply_markup=get_admin_keyboard(lang),
         )
 
 
@@ -234,26 +247,24 @@ async def confirm_delete_channel(callback: CallbackQuery) -> None:
         await callback.answer("🚫 Нет доступа")
         return
 
+    lang = await _get_lang(callback.from_user.id)
     channel_id = callback.data.replace("admin_del_", "")
 
-    from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(
-                text="✅ Да, удалить",
+                text=t("btn.admin_confirm_del", lang),
                 callback_data=f"admin_confirm_del_{channel_id}",
             ),
             InlineKeyboardButton(
-                text="❌ Отмена",
+                text=t("btn.admin_cancel_del", lang),
                 callback_data="admin_channels",
             ),
         ],
     ])
 
     await callback.message.edit_text(
-        f"⚠️ <b>Удалить канал?</b>\n\n"
-        f"ID: <code>{channel_id}</code>\n\n"
-        "Это действие нельзя отменить.",
+        t("admin.confirm_delete", lang, channel_id=channel_id),
         reply_markup=keyboard,
     )
     await callback.answer()
@@ -286,12 +297,12 @@ async def delete_channel(callback: CallbackQuery) -> None:
 async def cancel_action(callback: CallbackQuery, state: FSMContext) -> None:
     """Отмена текущего действия"""
     await state.clear()
+    lang = await _get_lang(callback.from_user.id)
     await callback.message.edit_text(
-        "🔧 <b>Админ-панель</b>\n\n"
-        "Выбери действие:",
-        reply_markup=get_admin_keyboard(),
+        t("admin.title", lang),
+        reply_markup=get_admin_keyboard(lang),
     )
-    await callback.answer("Действие отменено")
+    await callback.answer()
 
 
 def _normalize_channel_link(raw: str) -> str | None:
@@ -300,23 +311,19 @@ def _normalize_channel_link(raw: str) -> str | None:
     """
     raw = raw.strip()
 
-    # уже полная ссылка
     if raw.startswith("https://t.me/"):
         return raw
     if raw.startswith("https://telegram.me/"):
-        # нормализуем к t.me
         return raw.replace("https://telegram.me/", "https://t.me/")
     if raw.startswith("http://t.me/"):
         return raw.replace("http://", "https://")
 
-    # @channel → https://t.me/channel
     if raw.startswith("@"):
         username = raw[1:]
         if username and username.isascii():
             return f"https://t.me/{username}"
         return None
 
-    # просто channel_name
     if raw.isascii() and " " not in raw and len(raw) > 2:
         return f"https://t.me/{raw}"
 
