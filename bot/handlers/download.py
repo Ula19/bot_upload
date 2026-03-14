@@ -9,6 +9,7 @@ from bot.database import async_session
 from bot.database.crud import get_cached_download, get_or_create_user, save_download
 from bot.keyboards.inline import get_back_keyboard
 from bot.services.instagram import DownloadResult, downloader
+from bot.services.stories import download_story, is_story_url
 from bot.utils.helpers import clean_instagram_url, is_instagram_url
 
 logger = logging.getLogger(__name__)
@@ -26,7 +27,8 @@ async def handle_instagram_link(message: Message) -> None:
             "🤔 Это не похоже на ссылку Instagram.\n\n"
             "Отправь ссылку в формате:\n"
             "<code>https://www.instagram.com/reel/...</code>\n"
-            "<code>https://www.instagram.com/p/...</code>",
+            "<code>https://www.instagram.com/p/...</code>\n"
+            "<code>https://www.instagram.com/stories/...</code>",
             parse_mode="HTML",
         )
         return
@@ -56,8 +58,19 @@ async def handle_instagram_link(message: Message) -> None:
     status_msg = await message.answer("⏳ Скачиваю... Подожди немного")
 
     result = None
+    story_data = None
     try:
-        result = await downloader.download(clean_url)
+        # выбираем метод: Stories или Cobalt
+        if is_story_url(clean_url):
+            story_data = await download_story(clean_url, downloader.download_dir)
+            # оборачиваем в DownloadResult для единообразия
+            result = DownloadResult(
+                file_path=story_data["file_path"],
+                media_type=story_data["media_type"],
+                title=story_data["title"],
+            )
+        else:
+            result = await downloader.download(clean_url)
 
         # проверяем размер файла (Telegram лимит 50 МБ)
         file_size = os.path.getsize(result.file_path)
@@ -146,7 +159,17 @@ def _get_error_text(error: str) -> str:
     """Человеко-понятное сообщение об ошибке"""
     error_lower = error.lower()
 
-    if "private" in error_lower or "login" in error_lower:
+    if "session" in error_lower and "авторизация" in error_lower:
+        return (
+            "🔑 <b>Нужна авторизация</b>\n\n"
+            "Для скачивания Stories нужен INSTAGRAM_SESSION_ID."
+        )
+    elif "истории не найдены" in error_lower or "истекли" in error_lower:
+        return (
+            "⏰ <b>История не найдена</b>\n\n"
+            "Возможно, она уже истекла (24 часа) или аккаунт приватный."
+        )
+    elif "private" in error_lower or "login" in error_lower:
         return (
             "🔒 <b>Аккаунт приватный</b>\n\n"
             "К сожалению, скачивание из приватных аккаунтов невозможно."
@@ -156,7 +179,12 @@ def _get_error_text(error: str) -> str:
             "❌ <b>Пост не найден</b>\n\n"
             "Возможно, он удалён или ссылка неправильная."
         )
-    elif "too large" in error_lower or "filesize" in error_lower:
+    elif "unsupported" in error_lower:
+        return (
+            "🚫 <b>Ссылка не поддерживается</b>\n\n"
+            "Поддерживаются: посты, Reels и Stories."
+        )
+    elif "too large" in error_lower or "50 мб" in error_lower:
         return (
             "📦 <b>Файл слишком большой</b>\n\n"
             "Telegram ограничивает размер файла до 50 МБ."

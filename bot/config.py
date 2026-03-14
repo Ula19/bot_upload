@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     # Cobalt API (для скачивания фото и видео)
     cobalt_api_url: str = "http://localhost:9000"
 
+    # Instagram sessionid (для скачивания Stories)
+    instagram_session_id: str = ""
+
     @property
     def admin_id_list(self) -> list[int]:
         """Парсит admin_ids из строки в список int"""
