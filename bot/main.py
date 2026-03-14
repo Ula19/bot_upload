@@ -27,6 +27,13 @@ async def on_startup(bot: Bot) -> None:
     # создаём таблицы если их нет
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # миграция: добавляем колонку language если её нет
+        try:
+            await conn.execute(text(
+                "ALTER TABLE users ADD COLUMN IF NOT EXISTS language VARCHAR(5) DEFAULT 'ru'"
+            ))
+        except Exception:
+            pass  # колонка уже есть или ошибка — не критично
 
     logger.info("Таблицы БД созданы/проверены")
 

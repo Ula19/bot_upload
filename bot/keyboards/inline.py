@@ -1,32 +1,40 @@
 """Клавиатуры бота — цветные кнопки (Bot API 9.4)
 Стили: primary (синий), success (зелёный), danger (красный)
-TODO: добавить icon_custom_emoji_id когда юзер пришлёт ID
 """
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from bot.config import settings
+from bot.i18n import t
 
 
-def get_start_keyboard(user_id: int | None = None) -> InlineKeyboardMarkup:
-    """Главное меню после /start (админам показываем кнопку админки)"""
+def get_start_keyboard(
+    user_id: int | None = None, lang: str = "ru"
+) -> InlineKeyboardMarkup:
+    """Главное меню (админам — кнопка админки)"""
     buttons = [
         [
             InlineKeyboardButton(
-                text="📥 Скачать видео",
+                text=t("btn.download", lang),
                 callback_data="download_video",
                 style="primary",
             ),
         ],
         [
             InlineKeyboardButton(
-                text="📊 Мой профиль",
+                text=t("btn.profile", lang),
                 callback_data="my_profile",
                 style="success",
             ),
             InlineKeyboardButton(
-                text="❓ Помощь",
+                text=t("btn.help", lang),
                 callback_data="help",
                 style="success",
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text=t("btn.language", lang),
+                callback_data="change_language",
             ),
         ],
     ]
@@ -44,12 +52,12 @@ def get_start_keyboard(user_id: int | None = None) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-def get_back_keyboard() -> InlineKeyboardMarkup:
-    """Кнопка 'Назад' — красная"""
+def get_back_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
+    """Кнопка 'Назад'"""
     buttons = [
         [
             InlineKeyboardButton(
-                text="◀️ Назад",
+                text=t("btn.back", lang),
                 callback_data="back_to_menu",
                 style="danger",
             ),
@@ -59,7 +67,7 @@ def get_back_keyboard() -> InlineKeyboardMarkup:
 
 
 def get_subscription_keyboard(
-    channels: list[dict],
+    channels: list[dict], lang: str = "ru"
 ) -> InlineKeyboardMarkup:
     """Кнопки подписки на каналы + проверка"""
     buttons = []
@@ -73,9 +81,26 @@ def get_subscription_keyboard(
         ])
     buttons.append([
         InlineKeyboardButton(
-            text="✅ Проверить подписку",
+            text=t("btn.check_sub", lang),
             callback_data="check_subscription",
             style="success",
         ),
     ])
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+def get_language_keyboard() -> InlineKeyboardMarkup:
+    """Кнопки выбора языка"""
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text="🇷🇺 Русский",
+                callback_data="set_lang_ru",
+            ),
+            InlineKeyboardButton(
+                text="🇺🇿 O'zbek",
+                callback_data="set_lang_uz",
+            ),
+        ],
+    ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)

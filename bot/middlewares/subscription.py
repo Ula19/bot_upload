@@ -10,13 +10,14 @@ from aiogram.types import CallbackQuery, Message, TelegramObject
 
 from bot.config import settings
 from bot.database import async_session
-from bot.database.crud import get_active_channels
+from bot.database.crud import get_active_channels, get_user_language
+from bot.i18n import t
 from bot.keyboards.inline import get_subscription_keyboard
 
 logger = logging.getLogger(__name__)
 
 # эти callback_data пропускаем без проверки
-SKIP_CALLBACKS = {"check_subscription"}
+SKIP_CALLBACKS = {"check_subscription", "set_lang_ru", "set_lang_uz", "change_language"}
 
 
 class SubscriptionMiddleware(BaseMiddleware):
@@ -68,15 +69,12 @@ class SubscriptionMiddleware(BaseMiddleware):
         if not not_subscribed:
             return await handler(event, data)
 
-        # не подписан — показываем приветствие + подписку
-        text = (
-            "👋 <b>Привет!</b>\n\n"
-            "🎬 Этот бот скачивает видео, фото и Stories "
-            "из Instagram — быстро и бесплатно!\n\n"
-            "🔒 <b>Для начала подпишись на каналы ниже:</b>\n\n"
-            "После подписки нажми «✅ Проверить подписку»"
-        )
-        keyboard = get_subscription_keyboard(not_subscribed)
+        # не подписан — получаем язык и показываем приветствие
+        async with async_session() as session:
+            lang = await get_user_language(session, user.id) if user else "ru"
+
+        text = t("sub.welcome", lang)
+        keyboard = get_subscription_keyboard(not_subscribed, lang)
 
         if isinstance(event, Message):
             await event.answer(text, reply_markup=keyboard, parse_mode="HTML")

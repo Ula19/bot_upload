@@ -7,8 +7,17 @@ from aiogram.types import CallbackQuery, Message
 
 from bot.config import settings
 from bot.database import async_session
-from bot.database.crud import get_or_create_user
-from bot.keyboards.inline import get_back_keyboard, get_start_keyboard
+from bot.database.crud import (
+    get_or_create_user,
+    get_user_language,
+    update_user_language,
+)
+from bot.i18n import t
+from bot.keyboards.inline import (
+    get_back_keyboard,
+    get_language_keyboard,
+    get_start_keyboard,
+)
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -24,20 +33,13 @@ async def cmd_start(message: Message) -> None:
             username=message.from_user.username,
             full_name=message.from_user.full_name,
         )
-
-    # Приветственное сообщение
-    welcome_text = (
-        f"👋 <b>Привет, {message.from_user.first_name}!</b>\n\n"
-        "🎬 Я помогу тебе скачать видео и фото из Instagram.\n\n"
-        "📌 <b>Как пользоваться:</b>\n"
-        "Просто отправь мне ссылку на пост, Reels или историю — "
-        "и я пришлю тебе медиа! 🚀\n\n"
-        "Выбери действие ниже:"
-    )
+        lang = await get_user_language(session, message.from_user.id)
 
     await message.answer(
-        welcome_text,
-        reply_markup=get_start_keyboard(user_id=message.from_user.id),
+        t("start.welcome", lang, name=message.from_user.first_name),
+        reply_markup=get_start_keyboard(
+            user_id=message.from_user.id, lang=lang
+        ),
         parse_mode="HTML",
     )
 
@@ -45,18 +47,14 @@ async def cmd_start(message: Message) -> None:
 @router.callback_query(F.data == "back_to_menu")
 async def back_to_menu(callback: CallbackQuery) -> None:
     """Возврат в главное меню"""
-    welcome_text = (
-        f"👋 <b>Привет, {callback.from_user.first_name}!</b>\n\n"
-        "🎬 Я помогу тебе скачать видео и фото из Instagram.\n\n"
-        "📌 <b>Как пользоваться:</b>\n"
-        "Просто отправь мне ссылку на пост, Reels или историю — "
-        "и я пришлю тебе медиа! 🚀\n\n"
-        "Выбери действие ниже:"
-    )
+    async with async_session() as session:
+        lang = await get_user_language(session, callback.from_user.id)
 
     await callback.message.edit_text(
-        welcome_text,
-        reply_markup=get_start_keyboard(user_id=callback.from_user.id),
+        t("start.welcome", lang, name=callback.from_user.first_name),
+        reply_markup=get_start_keyboard(
+            user_id=callback.from_user.id, lang=lang
+        ),
         parse_mode="HTML",
     )
     await callback.answer()
@@ -82,18 +80,12 @@ async def open_admin_panel(callback: CallbackQuery) -> None:
 @router.callback_query(F.data == "download_video")
 async def download_video_prompt(callback: CallbackQuery) -> None:
     """Нажатие на кнопку 'Скачать видео'"""
-    text = (
-        "📥 <b>Скачивание видео из Instagram</b>\n\n"
-        "Отправь мне ссылку на:\n"
-        "• Пост (фото/видео)\n"
-        "• Reels\n"
-        "• Историю\n\n"
-        "🔗 Пример: <code>https://www.instagram.com/reel/...</code>"
-    )
+    async with async_session() as session:
+        lang = await get_user_language(session, callback.from_user.id)
 
     await callback.message.edit_text(
-        text,
-        reply_markup=get_back_keyboard(),
+        t("download.prompt", lang),
+        reply_markup=get_back_keyboard(lang),
         parse_mode="HTML",
     )
     await callback.answer()
@@ -109,17 +101,14 @@ async def my_profile(callback: CallbackQuery) -> None:
             username=callback.from_user.username,
             full_name=callback.from_user.full_name,
         )
-
-    text = (
-        f"👤 <b>Твой профиль</b>\n\n"
-        f"📛 Имя: {callback.from_user.full_name}\n"
-        f"🆔 ID: <code>{callback.from_user.id}</code>\n"
-        f"📥 Скачиваний: {user.download_count}\n"
-    )
+        lang = user.language or "ru"
 
     await callback.message.edit_text(
-        text,
-        reply_markup=get_back_keyboard(),
+        t("profile.title", lang,
+            full_name=callback.from_user.full_name,
+            user_id=callback.from_user.id,
+            downloads=user.download_count),
+        reply_markup=get_back_keyboard(lang),
         parse_mode="HTML",
     )
     await callback.answer()
@@ -128,33 +117,68 @@ async def my_profile(callback: CallbackQuery) -> None:
 @router.callback_query(F.data == "help")
 async def help_handler(callback: CallbackQuery) -> None:
     """Помощь"""
-    text = (
-        "❓ <b>Помощь</b>\n\n"
-        "🔹 Отправь ссылку на пост Instagram — получишь видео или фото\n"
-        "🔹 Поддерживаются: посты, Reels, истории\n"
-        "🔹 Приватные аккаунты не поддерживаются\n\n"
-        "📩 По вопросам: @admin"
-    )
+    async with async_session() as session:
+        lang = await get_user_language(session, callback.from_user.id)
 
     await callback.message.edit_text(
-        text,
-        reply_markup=get_back_keyboard(),
+        t("help.text", lang),
+        reply_markup=get_back_keyboard(lang),
         parse_mode="HTML",
     )
     await callback.answer()
 
 
+# === Выбор языка ===
+
+@router.callback_query(F.data == "change_language")
+async def change_language(callback: CallbackQuery) -> None:
+    """Показывает выбор языка"""
+    async with async_session() as session:
+        lang = await get_user_language(session, callback.from_user.id)
+
+    await callback.message.edit_text(
+        t("lang.choose", lang),
+        reply_markup=get_language_keyboard(),
+        parse_mode="HTML",
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("set_lang_"))
+async def set_language(callback: CallbackQuery) -> None:
+    """Устанавливает язык"""
+    lang = callback.data.replace("set_lang_", "")
+    if lang not in ("ru", "uz"):
+        return
+
+    async with async_session() as session:
+        await update_user_language(session, callback.from_user.id, lang)
+
+    await callback.message.edit_text(
+        t("lang.changed", lang),
+        reply_markup=get_start_keyboard(
+            user_id=callback.from_user.id, lang=lang
+        ),
+        parse_mode="HTML",
+    )
+    await callback.answer()
+
+
+# === Проверка подписки ===
+
 @router.callback_query(F.data == "check_subscription")
 async def check_subscription(callback: CallbackQuery) -> None:
     """Проверка подписки на каналы"""
     from bot.database.crud import get_active_channels
+    from bot.keyboards.inline import get_subscription_keyboard
     from bot.middlewares.subscription import is_subscribed
 
     async with async_session() as session:
         channels = await get_active_channels(session)
+        lang = await get_user_language(session, callback.from_user.id)
 
     if not channels:
-        await callback.answer("✅ Подписка не требуется!")
+        await callback.answer(t("sub.not_required", lang))
         return
 
     bot = callback.bot
@@ -168,28 +192,20 @@ async def check_subscription(callback: CallbackQuery) -> None:
             })
 
     if not_subscribed:
-        # ещё не подписался
-        from bot.keyboards.inline import get_subscription_keyboard
-        text = (
-            "❌ <b>Ты ещё не подписался на все каналы:</b>\n\n"
-            "Подпишись и нажми «✅ Проверить подписку» ещё раз."
-        )
         await callback.message.edit_text(
-            text,
-            reply_markup=get_subscription_keyboard(not_subscribed),
+            t("sub.not_subscribed", lang),
+            reply_markup=get_subscription_keyboard(not_subscribed, lang),
             parse_mode="HTML",
         )
-        await callback.answer("❌ Подпишись на все каналы!", show_alert=True)
+        await callback.answer(
+            t("sub.check_alert_fail", lang), show_alert=True,
+        )
     else:
-        # подписан — показываем главное меню
-        welcome_text = (
-            f"✅ <b>Отлично, {callback.from_user.first_name}!</b>\n\n"
-            "Теперь ты можешь пользоваться ботом! 🚀\n\n"
-            "Отправь ссылку на пост, Reels или историю Instagram."
-        )
         await callback.message.edit_text(
-            welcome_text,
-            reply_markup=get_start_keyboard(user_id=callback.from_user.id),
+            t("sub.success", lang, name=callback.from_user.first_name),
+            reply_markup=get_start_keyboard(
+                user_id=callback.from_user.id, lang=lang
+            ),
             parse_mode="HTML",
         )
-        await callback.answer("✅ Подписка подтверждена!")
+        await callback.answer(t("sub.check_alert_ok", lang))

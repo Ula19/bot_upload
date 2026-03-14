@@ -32,6 +32,27 @@ async def get_or_create_user(
     return user
 
 
+async def get_user_language(session: AsyncSession, telegram_id: int) -> str:
+    """Получить язык юзера (по умолчанию ru)"""
+    result = await session.execute(
+        select(User.language).where(User.telegram_id == telegram_id)
+    )
+    lang = result.scalar_one_or_none()
+    return lang or "ru"
+
+
+async def update_user_language(
+    session: AsyncSession, telegram_id: int, language: str
+) -> None:
+    """Обновить язык юзера"""
+    result = await session.execute(
+        select(User).where(User.telegram_id == telegram_id)
+    )
+    user = result.scalar_one_or_none()
+    if user:
+        user.language = language
+        await session.commit()
+
 async def get_active_channels(session: AsyncSession) -> list[Channel]:
     """Получить все каналы для обязательной подписки"""
     result = await session.execute(select(Channel))

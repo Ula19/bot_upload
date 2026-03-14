@@ -24,6 +24,8 @@ class User(Base):
     )
     # сколько раз скачивал
     download_count: Mapped[int] = mapped_column(default=0)
+    # язык интерфейса: ru / uz
+    language: Mapped[str] = mapped_column(String(5), default="ru")
 
     def __repr__(self) -> str:
         return f"<User {self.telegram_id} ({self.username})>"

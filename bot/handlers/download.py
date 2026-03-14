@@ -7,7 +7,13 @@ from aiogram import F, Router
 from aiogram.types import CallbackQuery, FSInputFile, Message
 
 from bot.database import async_session
-from bot.database.crud import get_cached_download, get_or_create_user, save_download
+from bot.database.crud import (
+    get_cached_download,
+    get_or_create_user,
+    get_user_language,
+    save_download,
+)
+from bot.i18n import t
 from bot.keyboards.inline import get_back_keyboard
 from bot.services.instagram import DownloadResult, downloader
 from bot.services.stories import download_story, is_story_url
@@ -22,14 +28,14 @@ async def handle_instagram_link(message: Message) -> None:
     """Обработка текстовых сообщений — ищем ссылки Instagram"""
     text = message.text.strip()
 
+    # получаем язык юзера
+    async with async_session() as session:
+        lang = await get_user_language(session, message.from_user.id)
+
     # проверяем что это ссылка на инсту
     if not is_instagram_url(text):
         await message.answer(
-            "🤔 Это не похоже на ссылку Instagram.\n\n"
-            "Отправь ссылку в формате:\n"
-            "<code>https://www.instagram.com/reel/...</code>\n"
-            "<code>https://www.instagram.com/p/...</code>\n"
-            "<code>https://www.instagram.com/stories/...</code>",
+            t("download.not_instagram", lang),
             parse_mode="HTML",
         )
         return
@@ -37,7 +43,7 @@ async def handle_instagram_link(message: Message) -> None:
     # очищаем URL
     clean_url = clean_instagram_url(text)
 
-    # обновляем юзера в БД
+    # обновляем юзера в БД + проверяем кэш
     async with async_session() as session:
         user = await get_or_create_user(
             session=session,
@@ -45,8 +51,6 @@ async def handle_instagram_link(message: Message) -> None:
             username=message.from_user.username,
             full_name=message.from_user.full_name,
         )
-
-        # проверяем кэш — может уже скачивали
         cached = await get_cached_download(session, clean_url)
 
     if cached:
@@ -56,15 +60,13 @@ async def handle_instagram_link(message: Message) -> None:
         return
 
     # кэша нет — скачиваем
-    status_msg = await message.answer("⏳ Скачиваю... Подожди немного")
+    status_msg = await message.answer(t("download.processing", lang))
 
     result = None
-    story_data = None
     try:
         # выбираем метод: Stories или Cobalt
         if is_story_url(clean_url):
             story_data = await download_story(clean_url, downloader.download_dir)
-            # оборачиваем в DownloadResult для единообразия
             result = DownloadResult(
                 file_path=story_data["file_path"],
                 media_type=story_data["media_type"],
@@ -76,10 +78,7 @@ async def handle_instagram_link(message: Message) -> None:
         # проверяем размер файла (Telegram лимит 50 МБ)
         file_size = os.path.getsize(result.file_path)
         if file_size > 50 * 1024 * 1024:
-            await status_msg.edit_text(
-                "❌ Файл слишком большой (более 50 МБ).\n"
-                "Telegram не позволяет отправлять такие файлы."
-            )
+            await status_msg.edit_text(t("error.too_large", lang))
             return
 
         # отправляем и получаем file_id
@@ -109,7 +108,7 @@ async def handle_instagram_link(message: Message) -> None:
 
     except Exception as e:
         logger.error(f"Ошибка скачивания {clean_url}: {e}")
-        error_text = _get_error_text(str(e))
+        error_text = _get_error_text(str(e), lang)
         await status_msg.edit_text(error_text)
 
     finally:
@@ -159,7 +158,6 @@ async def _send_cached(
 def _make_caption(media_type: str, url: str) -> str:
     """Генерит caption по типу медиа и URL"""
     if is_story_url(url):
-        # извлекаем username из URL stories
         match = re.search(r"stories/([^/]+)", url)
         username = match.group(1) if match else "unknown"
         emoji = "📹" if media_type == "video" else "📸"
@@ -170,47 +168,23 @@ def _make_caption(media_type: str, url: str) -> str:
         return "🎬 Instagram Reels"
 
 
-def _get_error_text(error: str) -> str:
+def _get_error_text(error: str, lang: str = "ru") -> str:
     """Человеко-понятное сообщение об ошибке"""
     error_lower = error.lower()
 
     if "session" in error_lower and "авторизация" in error_lower:
-        return (
-            "🔑 <b>Нужна авторизация</b>\n\n"
-            "Для скачивания Stories нужен INSTAGRAM_SESSION_ID."
-        )
+        return t("error.session", lang)
     elif "истории не найдены" in error_lower or "истекли" in error_lower:
-        return (
-            "⏰ <b>История не найдена</b>\n\n"
-            "Возможно, она уже истекла (24 часа) или аккаунт приватный."
-        )
+        return t("error.story_expired", lang)
     elif "private" in error_lower or "login" in error_lower:
-        return (
-            "🔒 <b>Аккаунт приватный</b>\n\n"
-            "К сожалению, скачивание из приватных аккаунтов невозможно."
-        )
+        return t("error.private", lang)
     elif "not found" in error_lower or "404" in error_lower:
-        return (
-            "❌ <b>Пост не найден</b>\n\n"
-            "Возможно, он удалён или ссылка неправильная."
-        )
+        return t("error.not_found", lang)
     elif "unsupported" in error_lower:
-        return (
-            "🚫 <b>Ссылка не поддерживается</b>\n\n"
-            "Поддерживаются: посты, Reels и Stories."
-        )
+        return t("error.unsupported", lang)
     elif "too large" in error_lower or "50 мб" in error_lower:
-        return (
-            "📦 <b>Файл слишком большой</b>\n\n"
-            "Telegram ограничивает размер файла до 50 МБ."
-        )
+        return t("error.too_large", lang)
     elif "timeout" in error_lower:
-        return (
-            "⏱ <b>Превышено время ожидания</b>\n\n"
-            "Попробуй ещё раз через пару минут."
-        )
+        return t("error.timeout", lang)
     else:
-        return (
-            "❌ <b>Не удалось скачать</b>\n\n"
-            "Попробуй позже или проверь ссылку."
-        )
+        return t("error.generic", lang)
