@@ -1,8 +1,6 @@
-# 🎬 Amalda.uz Instagram Bot
+# 🎬 Instagram Downloader Bot
 
 Telegram-бот для скачивания видео, фото и Stories из Instagram.
-
-**[@AmaldaUzInstagrambot](https://t.me/AmaldaUzInstagrambot)**
 
 ---
 
@@ -97,9 +95,6 @@ python -m bot.main
 | `ADMIN_IDS` | Telegram ID администраторов (через запятую) |
 | `COBALT_API_URL` | URL Cobalt API (http://localhost:9000) |
 
-## 🚀 Деплой
-
-Подробная инструкция → [DEPLOY.md](DEPLOY.md)
 
 ## 👨‍💻 Админ-панель
 
