@@ -432,9 +432,12 @@ async def confirm_broadcast(
     await callback.message.edit_text(t("admin.broadcast_started", lang))
     await callback.answer()
 
-    # получаем всех юзеров
+    # получаем всех юзеров и исключаем бота
     async with async_session() as session:
         user_ids = await get_all_user_ids(session)
+
+    bot_info = await callback.bot.get_me()
+    user_ids = [uid for uid in user_ids if uid != bot_info.id]
 
     # рассылка батчами
     import asyncio
