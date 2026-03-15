@@ -1,47 +1,84 @@
 """Мультиязычность — русский, узбекский, английский
 Использование: from bot.i18n import t
   t("start.welcome", lang="en", name="John")
+
+Кастомные эмоджи из пака tgmacicons используются в текстах сообщений
 """
+
+# кастомные эмоджи из tgmacicons (для текстов сообщений)
+E = {
+    "download": '<tg-emoji emoji-id="5258336354642697821">⬇️</tg-emoji>',
+    "profile":  '<tg-emoji emoji-id="5258362837411045098">👤</tg-emoji>',
+    "book":     '<tg-emoji emoji-id="5258328383183396223">📖</tg-emoji>',
+    "star":     '<tg-emoji emoji-id="5258185631355378853">⭐️</tg-emoji>',
+    "folder":   '<tg-emoji emoji-id="5258514780469075716">📂</tg-emoji>',
+    "cross":    '<tg-emoji emoji-id="5258226313285607065">❌</tg-emoji>',
+    "check":    '<tg-emoji emoji-id="5260726538302660868">✅</tg-emoji>',
+    "megaphone":'<tg-emoji emoji-id="5260268501515377807">📣</tg-emoji>',
+    "camera":   '<tg-emoji emoji-id="5258205968025525531">📸</tg-emoji>',
+    "link":     '<tg-emoji emoji-id="5260730055880876557">⛓</tg-emoji>',
+    "lock":     '<tg-emoji emoji-id="5258476306152038031">🔒</tg-emoji>',
+    "clock":    '<tg-emoji emoji-id="5258258882022612173">⏲</tg-emoji>',
+    "chart":    '<tg-emoji emoji-id="5258391025281408576">📈</tg-emoji>',
+    "gear":     '<tg-emoji emoji-id="5258096772776991776">⚙</tg-emoji>',
+    "home":     '<tg-emoji emoji-id="5257963315258204021">🏘</tg-emoji>',
+    "plus":     '<tg-emoji emoji-id="5258108352008823107">➕</tg-emoji>',
+    "plane":    '<tg-emoji emoji-id="5258115571848846212">✈️</tg-emoji>',
+    "pin":      '<tg-emoji emoji-id="5258461531464539536">📌</tg-emoji>',
+    "video":    '<tg-emoji emoji-id="5258077307985207053">📹</tg-emoji>',
+    "users":    '<tg-emoji emoji-id="5258513401784573443">👥</tg-emoji>',
+    "info":     '<tg-emoji emoji-id="5258503720928288433">ℹ️</tg-emoji>',
+    "bulb":     '<tg-emoji emoji-id="5258216851472654189">💡</tg-emoji>',
+    "warning":  '<tg-emoji emoji-id="5258474669769497337">❗️</tg-emoji>',
+    "back":     '<tg-emoji emoji-id="5258236805890710909">⬅️</tg-emoji>',
+    "package":  '<tg-emoji emoji-id="5258134813302332906">📦</tg-emoji>',
+    "edit":     '<tg-emoji emoji-id="5258331647358540449">✍️</tg-emoji>',
+    "bot":      '<tg-emoji emoji-id="5258093637450866522">🤖</tg-emoji>',
+    "refresh":  '<tg-emoji emoji-id="5258420634785947640">🔄</tg-emoji>',
+    "eye":      '<tg-emoji emoji-id="5253959125838090076">👁</tg-emoji>',
+    "search":   '<tg-emoji emoji-id="5429571366384842791">🔎</tg-emoji>',
+}
+
 
 TRANSLATIONS = {
     # === /start ===
     "start.welcome": {
         "ru": (
-            "👋 <b>Привет, {name}!</b>\n\n"
-            "🎬 Я помогу тебе скачать видео и фото из Instagram.\n\n"
-            "📌 <b>Как пользоваться:</b>\n"
-            "Просто отправь мне ссылку на пост, Reels или историю — "
-            "и я пришлю тебе медиа! 🚀\n\n"
-            "Выбери действие ниже:"
+            f"👋 <b>Привет, {{name}}!</b>\n\n"
+            f"{E['video']} Я помогу тебе скачать видео и фото из Instagram.\n\n"
+            f"{E['pin']} <b>Как пользоваться:</b>\n"
+            f"Просто отправь мне ссылку на пост, Reels или историю — "
+            f"и я пришлю тебе медиа! 🚀\n\n"
+            f"Выбери действие ниже:"
         ),
         "uz": (
-            "👋 <b>Salom, {name}!</b>\n\n"
-            "🎬 Instagram'dan video va rasm yuklab olishda yordam beraman.\n\n"
-            "📌 <b>Qanday foydalanish:</b>\n"
-            "Menga post, Reels yoki story havolasini yuboring — "
-            "men sizga media faylni yuboraman! 🚀\n\n"
-            "Quyidagi tugmalardan birini tanlang:"
+            f"👋 <b>Salom, {{name}}!</b>\n\n"
+            f"{E['video']} Instagram'dan video va rasm yuklab olishda yordam beraman.\n\n"
+            f"{E['pin']} <b>Qanday foydalanish:</b>\n"
+            f"Menga post, Reels yoki story havolasini yuboring — "
+            f"men sizga media faylni yuboraman! 🚀\n\n"
+            f"Quyidagi tugmalardan birini tanlang:"
         ),
         "en": (
-            "👋 <b>Hello, {name}!</b>\n\n"
-            "🎬 I'll help you download videos and photos from Instagram.\n\n"
-            "📌 <b>How to use:</b>\n"
-            "Just send me a link to a post, Reels or Story — "
-            "and I'll send you the media! 🚀\n\n"
-            "Choose an action below:"
+            f"👋 <b>Hello, {{name}}!</b>\n\n"
+            f"{E['video']} I'll help you download videos and photos from Instagram.\n\n"
+            f"{E['pin']} <b>How to use:</b>\n"
+            f"Just send me a link to a post, Reels or Story — "
+            f"and I'll send you the media! 🚀\n\n"
+            f"Choose an action below:"
         ),
     },
 
-    # === Кнопки главного меню ===
+    # === Кнопки главного меню (Unicode — кастомные тут не работают) ===
     "btn.download": {
         "ru": "📥 Скачать видео",
         "uz": "📥 Video yuklab olish",
         "en": "📥 Download video",
     },
     "btn.profile": {
-        "ru": "📊 Мой профиль",
-        "uz": "📊 Mening profilim",
-        "en": "📊 My profile",
+        "ru": "👤 Мой профиль",
+        "uz": "👤 Mening profilim",
+        "en": "👤 My profile",
     },
     "btn.help": {
         "ru": "❓ Помощь",
@@ -62,158 +99,158 @@ TRANSLATIONS = {
     # === Скачивание ===
     "download.prompt": {
         "ru": (
-            "📥 <b>Скачивание видео из Instagram</b>\n\n"
-            "Отправь мне ссылку на:\n"
-            "• Пост (фото/видео)\n"
-            "• Reels\n"
-            "• Историю\n\n"
-            "🔗 Пример: <code>https://www.instagram.com/reel/...</code>"
+            f"{E['download']} <b>Скачивание видео из Instagram</b>\n\n"
+            f"Отправь мне ссылку на:\n"
+            f"• Пост (фото/видео)\n"
+            f"• Reels\n"
+            f"• Историю\n\n"
+            f"{E['link']} Пример: <code>https://www.instagram.com/reel/...</code>"
         ),
         "uz": (
-            "📥 <b>Instagram'dan video yuklab olish</b>\n\n"
-            "Menga quyidagi havolani yuboring:\n"
-            "• Post (rasm/video)\n"
-            "• Reels\n"
-            "• Story\n\n"
-            "🔗 Misol: <code>https://www.instagram.com/reel/...</code>"
+            f"{E['download']} <b>Instagram'dan video yuklab olish</b>\n\n"
+            f"Menga quyidagi havolani yuboring:\n"
+            f"• Post (rasm/video)\n"
+            f"• Reels\n"
+            f"• Story\n\n"
+            f"{E['link']} Misol: <code>https://www.instagram.com/reel/...</code>"
         ),
         "en": (
-            "📥 <b>Download video from Instagram</b>\n\n"
-            "Send me a link to:\n"
-            "• Post (photo/video)\n"
-            "• Reels\n"
-            "• Story\n\n"
-            "🔗 Example: <code>https://www.instagram.com/reel/...</code>"
+            f"{E['download']} <b>Download video from Instagram</b>\n\n"
+            f"Send me a link to:\n"
+            f"• Post (photo/video)\n"
+            f"• Reels\n"
+            f"• Story\n\n"
+            f"{E['link']} Example: <code>https://www.instagram.com/reel/...</code>"
         ),
     },
     "download.processing": {
-        "ru": "⏳ Скачиваю... Подожди немного",
-        "uz": "⏳ Yuklab olinmoqda... Biroz kuting",
-        "en": "⏳ Downloading... Please wait",
+        "ru": f"{E['clock']} Скачиваю... Подожди немного",
+        "uz": f"{E['clock']} Yuklab olinmoqda... Biroz kuting",
+        "en": f"{E['clock']} Downloading... Please wait",
     },
     "download.not_instagram": {
         "ru": (
-            "🤔 Это не похоже на ссылку Instagram.\n\n"
-            "Отправь ссылку вида:\n"
-            "<code>https://www.instagram.com/...</code>"
+            f"{E['search']} Это не похоже на ссылку Instagram.\n\n"
+            f"Отправь ссылку вида:\n"
+            f"<code>https://www.instagram.com/...</code>"
         ),
         "uz": (
-            "🤔 Bu Instagram havolasiga o'xshamaydi.\n\n"
-            "Quyidagi ko'rinishdagi havolani yuboring:\n"
-            "<code>https://www.instagram.com/...</code>"
+            f"{E['search']} Bu Instagram havolasiga o'xshamaydi.\n\n"
+            f"Quyidagi ko'rinishdagi havolani yuboring:\n"
+            f"<code>https://www.instagram.com/...</code>"
         ),
         "en": (
-            "🤔 This doesn't look like an Instagram link.\n\n"
-            "Send a link like:\n"
-            "<code>https://www.instagram.com/...</code>"
+            f"{E['search']} This doesn't look like an Instagram link.\n\n"
+            f"Send a link like:\n"
+            f"<code>https://www.instagram.com/...</code>"
         ),
     },
     "download.only_video": {
-        "ru": "📸 Пока поддерживаются только видео, Reels и Stories.",
-        "uz": "📸 Hozircha faqat video, Reels va Stories qo'llab-quvvatlanadi.",
-        "en": "📸 Currently only videos, Reels and Stories are supported.",
+        "ru": f"{E['camera']} Пока поддерживаются только видео, Reels и Stories.",
+        "uz": f"{E['camera']} Hozircha faqat video, Reels va Stories qo'llab-quvvatlanadi.",
+        "en": f"{E['camera']} Currently only videos, Reels and Stories are supported.",
     },
 
     # === Профиль ===
     "profile.title": {
         "ru": (
-            "👤 <b>Твой профиль</b>\n\n"
-            "📛 Имя: {full_name}\n"
-            "🆔 ID: <code>{user_id}</code>\n"
-            "📥 Скачиваний (всего): {downloads}\n"
+            f"{E['profile']} <b>Твой профиль</b>\n\n"
+            f"{E['edit']} Имя: {{full_name}}\n"
+            f"{E['info']} ID: <code>{{user_id}}</code>\n"
+            f"{E['download']} Скачиваний (всего): {{downloads}}\n"
         ),
         "uz": (
-            "👤 <b>Sizning profilingiz</b>\n\n"
-            "📛 Ism: {full_name}\n"
-            "🆔 ID: <code>{user_id}</code>\n"
-            "📥 Yuklashlar (jami): {downloads}\n"
+            f"{E['profile']} <b>Sizning profilingiz</b>\n\n"
+            f"{E['edit']} Ism: {{full_name}}\n"
+            f"{E['info']} ID: <code>{{user_id}}</code>\n"
+            f"{E['download']} Yuklashlar (jami): {{downloads}}\n"
         ),
         "en": (
-            "👤 <b>Your profile</b>\n\n"
-            "📛 Name: {full_name}\n"
-            "🆔 ID: <code>{user_id}</code>\n"
-            "📥 Downloads (total): {downloads}\n"
+            f"{E['profile']} <b>Your profile</b>\n\n"
+            f"{E['edit']} Name: {{full_name}}\n"
+            f"{E['info']} ID: <code>{{user_id}}</code>\n"
+            f"{E['download']} Downloads (total): {{downloads}}\n"
         ),
     },
 
     # === Помощь ===
     "help.text": {
         "ru": (
-            "❓ <b>Помощь</b>\n\n"
-            "🔹 Отправь ссылку на пост Instagram — получишь видео или фото\n"
-            "🔹 Поддерживаются: посты, Reels, истории\n"
-            "🔹 Приватные аккаунты не поддерживаются\n\n"
-            "📩 По вопросам: @{admin_username}"
+            f"{E['book']} <b>Помощь</b>\n\n"
+            f"{E['star']} Отправь ссылку на пост Instagram — получишь видео или фото\n"
+            f"{E['star']} Поддерживаются: посты, Reels, истории\n"
+            f"{E['lock']} Приватные аккаунты не поддерживаются\n\n"
+            f"{E['plane']} По вопросам: @{{admin_username}}"
         ),
         "uz": (
-            "❓ <b>Yordam</b>\n\n"
-            "🔹 Instagram post havolasini yuboring — video yoki rasm olasiz\n"
-            "🔹 Qo'llab-quvvatlanadi: postlar, Reels, stories\n"
-            "🔹 Yopiq akkauntlar qo'llab-quvvatlanmaydi\n\n"
-            "📩 Savollar uchun: @{admin_username}"
+            f"{E['book']} <b>Yordam</b>\n\n"
+            f"{E['star']} Instagram post havolasini yuboring — video yoki rasm olasiz\n"
+            f"{E['star']} Qo'llab-quvvatlanadi: postlar, Reels, stories\n"
+            f"{E['lock']} Yopiq akkauntlar qo'llab-quvvatlanmaydi\n\n"
+            f"{E['plane']} Savollar uchun: @{{admin_username}}"
         ),
         "en": (
-            "❓ <b>Help</b>\n\n"
-            "🔹 Send an Instagram post link — get a video or photo\n"
-            "🔹 Supported: posts, Reels, stories\n"
-            "🔹 Private accounts are not supported\n\n"
-            "📩 Contact: @{admin_username}"
+            f"{E['book']} <b>Help</b>\n\n"
+            f"{E['star']} Send an Instagram post link — get a video or photo\n"
+            f"{E['star']} Supported: posts, Reels, stories\n"
+            f"{E['lock']} Private accounts are not supported\n\n"
+            f"{E['plane']} Contact: @{{admin_username}}"
         ),
     },
 
     # === Подписка ===
     "sub.welcome": {
         "ru": (
-            "👋 <b>Привет!</b>\n\n"
-            "🎬 Этот бот скачивает видео, фото и Stories "
-            "из Instagram — быстро и бесплатно!\n\n"
-            "🔒 <b>Для начала подпишись на каналы ниже:</b>\n\n"
-            "После подписки нажми «✅ Проверить подписку»"
+            f"👋 <b>Привет!</b>\n\n"
+            f"{E['video']} Этот бот скачивает видео, фото и Stories "
+            f"из Instagram — быстро и бесплатно!\n\n"
+            f"{E['lock']} <b>Для начала подпишись на каналы ниже:</b>\n\n"
+            f"После подписки нажми «{E['check']} Проверить подписку»"
         ),
         "uz": (
-            "👋 <b>Salom!</b>\n\n"
-            "🎬 Bu bot Instagram'dan video, rasm va Stories "
-            "yuklab oladi — tez va bepul!\n\n"
-            "🔒 <b>Boshlash uchun quyidagi kanallarga obuna bo'ling:</b>\n\n"
-            "Obuna bo'lgandan keyin «✅ Obunani tekshirish» tugmasini bosing"
+            f"👋 <b>Salom!</b>\n\n"
+            f"{E['video']} Bu bot Instagram'dan video, rasm va Stories "
+            f"yuklab oladi — tez va bepul!\n\n"
+            f"{E['lock']} <b>Boshlash uchun quyidagi kanallarga obuna bo'ling:</b>\n\n"
+            f"Obuna bo'lgandan keyin «{E['check']} Obunani tekshirish» tugmasini bosing"
         ),
         "en": (
-            "👋 <b>Hello!</b>\n\n"
-            "🎬 This bot downloads videos, photos and Stories "
-            "from Instagram — fast and free!\n\n"
-            "🔒 <b>To start, subscribe to the channels below:</b>\n\n"
-            "After subscribing, tap «✅ Check subscription»"
+            f"👋 <b>Hello!</b>\n\n"
+            f"{E['video']} This bot downloads videos, photos and Stories "
+            f"from Instagram — fast and free!\n\n"
+            f"{E['lock']} <b>To start, subscribe to the channels below:</b>\n\n"
+            f"After subscribing, tap «{E['check']} Check subscription»"
         ),
     },
     "sub.not_subscribed": {
         "ru": (
-            "❌ <b>Ты ещё не подписался на все каналы:</b>\n\n"
-            "Подпишись и нажми «✅ Проверить подписку» ещё раз."
+            f"{E['cross']} <b>Ты ещё не подписался на все каналы:</b>\n\n"
+            f"Подпишись и нажми «{E['check']} Проверить подписку» ещё раз."
         ),
         "uz": (
-            "❌ <b>Siz hali barcha kanallarga obuna bo'lmadingiz:</b>\n\n"
-            "Obuna bo'ling va «✅ Obunani tekshirish» tugmasini qayta bosing."
+            f"{E['cross']} <b>Siz hali barcha kanallarga obuna bo'lmadingiz:</b>\n\n"
+            f"Obuna bo'ling va «{E['check']} Obunani tekshirish» tugmasini qayta bosing."
         ),
         "en": (
-            "❌ <b>You haven't subscribed to all channels yet:</b>\n\n"
-            "Subscribe and tap «✅ Check subscription» again."
+            f"{E['cross']} <b>You haven't subscribed to all channels yet:</b>\n\n"
+            f"Subscribe and tap «{E['check']} Check subscription» again."
         ),
     },
     "sub.success": {
         "ru": (
-            "✅ <b>Отлично, {name}!</b>\n\n"
-            "Теперь ты можешь пользоваться ботом! 🚀\n\n"
-            "Отправь ссылку на пост, Reels или историю Instagram."
+            f"{E['check']} <b>Отлично, {{name}}!</b>\n\n"
+            f"Теперь ты можешь пользоваться ботом! 🚀\n\n"
+            f"Отправь ссылку на пост, Reels или историю Instagram."
         ),
         "uz": (
-            "✅ <b>Ajoyib, {name}!</b>\n\n"
-            "Endi siz botdan foydalanishingiz mumkin! 🚀\n\n"
-            "Instagram post, Reels yoki story havolasini yuboring."
+            f"{E['check']} <b>Ajoyib, {{name}}!</b>\n\n"
+            f"Endi siz botdan foydalanishingiz mumkin! 🚀\n\n"
+            f"Instagram post, Reels yoki story havolasini yuboring."
         ),
         "en": (
-            "✅ <b>Great, {name}!</b>\n\n"
-            "You can now use the bot! 🚀\n\n"
-            "Send a link to an Instagram post, Reels or Story."
+            f"{E['check']} <b>Great, {{name}}!</b>\n\n"
+            f"You can now use the bot! 🚀\n\n"
+            f"Send a link to an Instagram post, Reels or Story."
         ),
     },
     "btn.check_sub": {
@@ -239,49 +276,49 @@ TRANSLATIONS = {
 
     # === Ошибки ===
     "error.session": {
-        "ru": "🔑 <b>Нужна авторизация</b>\n\nДля скачивания Stories нужен INSTAGRAM_SESSION_ID.",
-        "uz": "🔑 <b>Avtorizatsiya kerak</b>\n\nStories yuklab olish uchun INSTAGRAM_SESSION_ID kerak.",
-        "en": "🔑 <b>Authorization required</b>\n\nINSTAGRAM_SESSION_ID is needed to download Stories.",
+        "ru": f"{E['lock']} <b>Нужна авторизация</b>\n\nДля скачивания Stories нужен INSTAGRAM_SESSION_ID.",
+        "uz": f"{E['lock']} <b>Avtorizatsiya kerak</b>\n\nStories yuklab olish uchun INSTAGRAM_SESSION_ID kerak.",
+        "en": f"{E['lock']} <b>Authorization required</b>\n\nINSTAGRAM_SESSION_ID is needed to download Stories.",
     },
     "error.story_expired": {
-        "ru": "⏰ <b>История не найдена</b>\n\nВозможно, она уже истекла (24 часа) или аккаунт приватный.",
-        "uz": "⏰ <b>Story topilmadi</b>\n\nEhtimol, u allaqachon o'chirilgan (24 soat) yoki akkaunt yopiq.",
-        "en": "⏰ <b>Story not found</b>\n\nIt may have expired (24 hours) or the account is private.",
+        "ru": f"{E['clock']} <b>История не найдена</b>\n\nВозможно, она уже истекла (24 часа) или аккаунт приватный.",
+        "uz": f"{E['clock']} <b>Story topilmadi</b>\n\nEhtimol, u allaqachon o'chirilgan (24 soat) yoki akkaunt yopiq.",
+        "en": f"{E['clock']} <b>Story not found</b>\n\nIt may have expired (24 hours) or the account is private.",
     },
     "error.private": {
-        "ru": "🔒 <b>Аккаунт приватный</b>\n\nК сожалению, скачивание из приватных аккаунтов невозможно.",
-        "uz": "🔒 <b>Akkaunt yopiq</b>\n\nAfsuski, yopiq akkauntlardan yuklab olish mumkin emas.",
-        "en": "🔒 <b>Private account</b>\n\nUnfortunately, downloading from private accounts is not possible.",
+        "ru": f"{E['lock']} <b>Аккаунт приватный</b>\n\nК сожалению, скачивание из приватных аккаунтов невозможно.",
+        "uz": f"{E['lock']} <b>Akkaunt yopiq</b>\n\nAfsuski, yopiq akkauntlardan yuklab olish mumkin emas.",
+        "en": f"{E['lock']} <b>Private account</b>\n\nUnfortunately, downloading from private accounts is not possible.",
     },
     "error.not_found": {
-        "ru": "❌ <b>Пост не найден</b>\n\nВозможно, он удалён или ссылка неправильная.",
-        "uz": "❌ <b>Post topilmadi</b>\n\nEhtimol, u o'chirilgan yoki havola noto'g'ri.",
-        "en": "❌ <b>Post not found</b>\n\nIt may have been deleted or the link is incorrect.",
+        "ru": f"{E['cross']} <b>Пост не найден</b>\n\nВозможно, он удалён или ссылка неправильная.",
+        "uz": f"{E['cross']} <b>Post topilmadi</b>\n\nEhtimol, u o'chirilgan yoki havola noto'g'ri.",
+        "en": f"{E['cross']} <b>Post not found</b>\n\nIt may have been deleted or the link is incorrect.",
     },
     "error.unsupported": {
-        "ru": "🚫 <b>Ссылка не поддерживается</b>\n\nПоддерживаются: посты, Reels и Stories.",
-        "uz": "🚫 <b>Havola qo'llab-quvvatlanmaydi</b>\n\nQo'llab-quvvatlanadi: postlar, Reels va Stories.",
-        "en": "🚫 <b>Link not supported</b>\n\nSupported: posts, Reels and Stories.",
+        "ru": f"{E['warning']} <b>Ссылка не поддерживается</b>\n\nПоддерживаются: посты, Reels и Stories.",
+        "uz": f"{E['warning']} <b>Havola qo'llab-quvvatlanmaydi</b>\n\nQo'llab-quvvatlanadi: postlar, Reels va Stories.",
+        "en": f"{E['warning']} <b>Link not supported</b>\n\nSupported: posts, Reels and Stories.",
     },
     "error.too_large": {
-        "ru": "📦 <b>Файл слишком большой</b>\n\nTelegram ограничивает размер файла до 50 МБ.",
-        "uz": "📦 <b>Fayl juda katta</b>\n\nTelegram fayl hajmini 50 MB bilan cheklaydi.",
-        "en": "📦 <b>File too large</b>\n\nTelegram limits file size to 50 MB.",
+        "ru": f"{E['package']} <b>Файл слишком большой</b>\n\nTelegram ограничивает размер файла до 50 МБ.",
+        "uz": f"{E['package']} <b>Fayl juda katta</b>\n\nTelegram fayl hajmini 50 MB bilan cheklaydi.",
+        "en": f"{E['package']} <b>File too large</b>\n\nTelegram limits file size to 50 MB.",
     },
     "error.timeout": {
-        "ru": "⏱ <b>Превышено время ожидания</b>\n\nПопробуй ещё раз через пару минут.",
-        "uz": "⏱ <b>Kutish vaqti tugadi</b>\n\nBir necha daqiqadan keyin qayta urinib ko'ring.",
-        "en": "⏱ <b>Request timed out</b>\n\nPlease try again in a few minutes.",
+        "ru": f"{E['clock']} <b>Превышено время ожидания</b>\n\nПопробуй ещё раз через пару минут.",
+        "uz": f"{E['clock']} <b>Kutish vaqti tugadi</b>\n\nBir necha daqiqadan keyin qayta urinib ko'ring.",
+        "en": f"{E['clock']} <b>Request timed out</b>\n\nPlease try again in a few minutes.",
     },
     "error.generic": {
-        "ru": "❌ <b>Не удалось скачать</b>\n\nПопробуй позже или проверь ссылку.",
-        "uz": "❌ <b>Yuklab olib bo'lmadi</b>\n\nKeyinroq urinib ko'ring yoki havolani tekshiring.",
-        "en": "❌ <b>Download failed</b>\n\nTry again later or check the link.",
+        "ru": f"{E['cross']} <b>Не удалось скачать</b>\n\nПопробуй позже или проверь ссылку.",
+        "uz": f"{E['cross']} <b>Yuklab olib bo'lmadi</b>\n\nKeyinroq urinib ko'ring yoki havolani tekshiring.",
+        "en": f"{E['cross']} <b>Download failed</b>\n\nTry again later or check the link.",
     },
     "error.rate_limit": {
-        "ru": "⏳ <b>Слишком много запросов!</b>\n\nПодожди {seconds} секунд и попробуй снова.",
-        "uz": "⏳ <b>Juda ko'p so'rovlar!</b>\n\n{seconds} soniya kuting va qayta urinib ko'ring.",
-        "en": "⏳ <b>Too many requests!</b>\n\nWait {seconds} seconds and try again.",
+        "ru": f"{E['clock']} <b>Слишком много запросов!</b>\n\nПодожди {{seconds}} секунд и попробуй снова.",
+        "uz": f"{E['clock']} <b>Juda ko'p so'rovlar!</b>\n\n{{seconds}} soniya kuting va qayta urinib ko'ring.",
+        "en": f"{E['clock']} <b>Too many requests!</b>\n\nWait {{seconds}} seconds and try again.",
     },
 
     # === Выбор языка ===
@@ -291,124 +328,124 @@ TRANSLATIONS = {
         "en": "🌐 <b>Choose language:</b>",
     },
     "lang.changed": {
-        "ru": "✅ Язык изменён на русский",
-        "uz": "✅ Til o'zbek tiliga o'zgartirildi",
-        "en": "✅ Language changed to English",
+        "ru": f"{E['check']} Язык изменён на русский",
+        "uz": f"{E['check']} Til o'zbek tiliga o'zgartirildi",
+        "en": f"{E['check']} Language changed to English",
     },
 
     # === Админ-панель ===
     "admin.title": {
-        "ru": "🔧 <b>Админ-панель</b>\n\nВыбери действие:",
-        "uz": "🔧 <b>Admin panel</b>\n\nAmalni tanlang:",
-        "en": "🔧 <b>Admin panel</b>\n\nChoose an action:",
+        "ru": f"{E['gear']} <b>Админ-панель</b>\n\nВыбери действие:",
+        "uz": f"{E['gear']} <b>Admin panel</b>\n\nAmalni tanlang:",
+        "en": f"{E['gear']} <b>Admin panel</b>\n\nChoose an action:",
     },
     "admin.no_access": {
-        "ru": "🚫 У тебя нет доступа к админке.",
-        "uz": "🚫 Sizda admin panelga kirish huquqi yo'q.",
-        "en": "🚫 You don't have access to admin panel.",
+        "ru": f"{E['lock']} У тебя нет доступа к админке.",
+        "uz": f"{E['lock']} Sizda admin panelga kirish huquqi yo'q.",
+        "en": f"{E['lock']} You don't have access to admin panel.",
     },
     "admin.stats": {
         "ru": (
-            "📊 <b>Статистика бота</b>\n\n"
-            "👥 Всего юзеров: <b>{total_users}</b>\n"
-            "🆕 Новых юзеров сегодня: <b>{today_users}</b>\n"
-            "📥 Всего скачиваний: <b>{total_downloads}</b>\n"
-            "📢 Каналов: <b>{total_channels}</b>"
+            f"{E['chart']} <b>Статистика бота</b>\n\n"
+            f"{E['users']} Всего юзеров: <b>{{total_users}}</b>\n"
+            f"{E['star']} Новых юзеров сегодня: <b>{{today_users}}</b>\n"
+            f"{E['download']} Всего скачиваний: <b>{{total_downloads}}</b>\n"
+            f"{E['megaphone']} Каналов: <b>{{total_channels}}</b>"
         ),
         "uz": (
-            "📊 <b>Bot statistikasi</b>\n\n"
-            "👥 Jami foydalanuvchilar: <b>{total_users}</b>\n"
-            "🆕 Bugungi yangi foydalanuvchilar: <b>{today_users}</b>\n"
-            "📥 Jami yuklashlar: <b>{total_downloads}</b>\n"
-            "📢 Kanallar: <b>{total_channels}</b>"
+            f"{E['chart']} <b>Bot statistikasi</b>\n\n"
+            f"{E['users']} Jami foydalanuvchilar: <b>{{total_users}}</b>\n"
+            f"{E['star']} Bugungi yangi foydalanuvchilar: <b>{{today_users}}</b>\n"
+            f"{E['download']} Jami yuklashlar: <b>{{total_downloads}}</b>\n"
+            f"{E['megaphone']} Kanallar: <b>{{total_channels}}</b>"
         ),
         "en": (
-            "📊 <b>Bot statistics</b>\n\n"
-            "👥 Total users: <b>{total_users}</b>\n"
-            "🆕 New users today: <b>{today_users}</b>\n"
-            "📥 Total downloads: <b>{total_downloads}</b>\n"
-            "📢 Channels: <b>{total_channels}</b>"
+            f"{E['chart']} <b>Bot statistics</b>\n\n"
+            f"{E['users']} Total users: <b>{{total_users}}</b>\n"
+            f"{E['star']} New users today: <b>{{today_users}}</b>\n"
+            f"{E['download']} Total downloads: <b>{{total_downloads}}</b>\n"
+            f"{E['megaphone']} Channels: <b>{{total_channels}}</b>"
         ),
     },
     "admin.channels_empty": {
-        "ru": "📢 <b>Каналы</b>\n\nСписок пуст. Добавь канал кнопкой ниже.",
-        "uz": "📢 <b>Kanallar</b>\n\nRo'yxat bo'sh. Quyidagi tugma orqali kanal qo'shing.",
-        "en": "📢 <b>Channels</b>\n\nList is empty. Add a channel using the button below.",
+        "ru": f"{E['megaphone']} <b>Каналы</b>\n\nСписок пуст. Добавь канал кнопкой ниже.",
+        "uz": f"{E['megaphone']} <b>Kanallar</b>\n\nRo'yxat bo'sh. Quyidagi tugma orqali kanal qo'shing.",
+        "en": f"{E['megaphone']} <b>Channels</b>\n\nList is empty. Add a channel using the button below.",
     },
     "admin.channels_title": {
-        "ru": "📢 <b>Каналы для подписки:</b>\n",
-        "uz": "📢 <b>Obuna kanallari:</b>\n",
-        "en": "📢 <b>Subscription channels:</b>\n",
+        "ru": f"{E['megaphone']} <b>Каналы для подписки:</b>\n",
+        "uz": f"{E['megaphone']} <b>Obuna kanallari:</b>\n",
+        "en": f"{E['megaphone']} <b>Subscription channels:</b>\n",
     },
     "admin.add_channel_id": {
         "ru": (
-            "📢 <b>Добавление канала</b>\n\n"
-            "Отправь <b>ID канала</b> (числовой, например <code>-1001234567890</code>)\n\n"
-            "💡 Узнать ID: добавь бота @getmyid_bot в канал"
+            f"{E['megaphone']} <b>Добавление канала</b>\n\n"
+            f"Отправь <b>ID канала</b> (числовой, например <code>-1001234567890</code>)\n\n"
+            f"{E['bulb']} Узнать ID: добавь бота @getmyid_bot в канал"
         ),
         "uz": (
-            "📢 <b>Kanal qo'shish</b>\n\n"
-            "<b>Kanal ID</b> raqamini yuboring (masalan <code>-1001234567890</code>)\n\n"
-            "💡 ID bilish: @getmyid_bot ni kanalga qo'shing"
+            f"{E['megaphone']} <b>Kanal qo'shish</b>\n\n"
+            f"<b>Kanal ID</b> raqamini yuboring (masalan <code>-1001234567890</code>)\n\n"
+            f"{E['bulb']} ID bilish: @getmyid_bot ni kanalga qo'shing"
         ),
         "en": (
-            "📢 <b>Add channel</b>\n\n"
-            "Send the <b>channel ID</b> (numeric, e.g. <code>-1001234567890</code>)\n\n"
-            "💡 Get ID: add @getmyid_bot to the channel"
+            f"{E['megaphone']} <b>Add channel</b>\n\n"
+            f"Send the <b>channel ID</b> (numeric, e.g. <code>-1001234567890</code>)\n\n"
+            f"{E['bulb']} Get ID: add @getmyid_bot to the channel"
         ),
     },
     "admin.add_channel_title": {
-        "ru": "✏️ Теперь отправь <b>название канала</b> (для отображения юзеру):",
-        "uz": "✏️ Endi <b>kanal nomini</b> yuboring (foydalanuvchiga ko'rsatiladi):",
-        "en": "✏️ Now send the <b>channel name</b> (displayed to the user):",
+        "ru": f"{E['edit']} Теперь отправь <b>название канала</b> (для отображения юзеру):",
+        "uz": f"{E['edit']} Endi <b>kanal nomini</b> yuboring (foydalanuvchiga ko'rsatiladi):",
+        "en": f"{E['edit']} Now send the <b>channel name</b> (displayed to the user):",
     },
     "admin.add_channel_link": {
         "ru": (
-            "🔗 Теперь отправь <b>ссылку или юзернейм канала</b>\n\n"
-            "Принимаю любой формат:\n"
-            "• <code>https://t.me/your_channel</code>\n"
-            "• <code>@your_channel</code>\n"
-            "• <code>your_channel</code>"
+            f"{E['link']} Теперь отправь <b>ссылку или юзернейм канала</b>\n\n"
+            f"Принимаю любой формат:\n"
+            f"• <code>https://t.me/your_channel</code>\n"
+            f"• <code>@your_channel</code>\n"
+            f"• <code>your_channel</code>"
         ),
         "uz": (
-            "🔗 Endi <b>kanal havolasi yoki username</b> yuboring\n\n"
-            "Istalgan formatda:\n"
-            "• <code>https://t.me/your_channel</code>\n"
-            "• <code>@your_channel</code>\n"
-            "• <code>your_channel</code>"
+            f"{E['link']} Endi <b>kanal havolasi yoki username</b> yuboring\n\n"
+            f"Istalgan formatda:\n"
+            f"• <code>https://t.me/your_channel</code>\n"
+            f"• <code>@your_channel</code>\n"
+            f"• <code>your_channel</code>"
         ),
         "en": (
-            "🔗 Now send the <b>channel link or username</b>\n\n"
-            "Any format accepted:\n"
-            "• <code>https://t.me/your_channel</code>\n"
-            "• <code>@your_channel</code>\n"
-            "• <code>your_channel</code>"
+            f"{E['link']} Now send the <b>channel link or username</b>\n\n"
+            f"Any format accepted:\n"
+            f"• <code>https://t.me/your_channel</code>\n"
+            f"• <code>@your_channel</code>\n"
+            f"• <code>your_channel</code>"
         ),
     },
     "admin.channel_added": {
-        "ru": "✅ <b>Канал добавлен!</b>",
-        "uz": "✅ <b>Kanal qo'shildi!</b>",
-        "en": "✅ <b>Channel added!</b>",
+        "ru": f"{E['check']} <b>Канал добавлен!</b>",
+        "uz": f"{E['check']} <b>Kanal qo'shildi!</b>",
+        "en": f"{E['check']} <b>Channel added!</b>",
     },
     "admin.confirm_delete": {
-        "ru": "⚠️ <b>Удалить канал?</b>\n\nID: <code>{channel_id}</code>\n\nЭто действие нельзя отменить.",
-        "uz": "⚠️ <b>Kanalni o'chirishni xohlaysizmi?</b>\n\nID: <code>{channel_id}</code>\n\nBu amalni qaytarib bo'lmaydi.",
-        "en": "⚠️ <b>Delete channel?</b>\n\nID: <code>{channel_id}</code>\n\nThis action cannot be undone.",
+        "ru": f"{E['warning']} <b>Удалить канал?</b>\n\nID: <code>{{channel_id}}</code>\n\nЭто действие нельзя отменить.",
+        "uz": f"{E['warning']} <b>Kanalni o'chirishni xohlaysizmi?</b>\n\nID: <code>{{channel_id}}</code>\n\nBu amalni qaytarib bo'lmaydi.",
+        "en": f"{E['warning']} <b>Delete channel?</b>\n\nID: <code>{{channel_id}}</code>\n\nThis action cannot be undone.",
     },
     "admin.id_not_number": {
-        "ru": "❌ ID должен быть числом. Попробуй ещё раз:",
-        "uz": "❌ ID raqam bo'lishi kerak. Qayta urinib ko'ring:",
-        "en": "❌ ID must be a number. Try again:",
+        "ru": f"{E['cross']} ID должен быть числом. Попробуй ещё раз:",
+        "uz": f"{E['cross']} ID raqam bo'lishi kerak. Qayta urinib ko'ring:",
+        "en": f"{E['cross']} ID must be a number. Try again:",
     },
     "admin.title_too_long": {
-        "ru": "❌ Название слишком длинное (макс 200 символов)",
-        "uz": "❌ Nom juda uzun (maks 200 belgi)",
-        "en": "❌ Name is too long (max 200 characters)",
+        "ru": f"{E['cross']} Название слишком длинное (макс 200 символов)",
+        "uz": f"{E['cross']} Nom juda uzun (maks 200 belgi)",
+        "en": f"{E['cross']} Name is too long (max 200 characters)",
     },
     "admin.link_invalid": {
-        "ru": "❌ Не удалось распознать ссылку.\nПопробуй ещё:",
-        "uz": "❌ Havolani aniqlab bo'lmadi.\nQayta urinib ko'ring:",
-        "en": "❌ Could not parse the link.\nTry again:",
+        "ru": f"{E['cross']} Не удалось распознать ссылку.\nПопробуй ещё:",
+        "uz": f"{E['cross']} Havolani aniqlab bo'lmadi.\nQayta urinib ko'ring:",
+        "en": f"{E['cross']} Could not parse the link.\nTry again:",
     },
     "btn.admin_stats": {
         "ru": "📊 Статистика",
@@ -451,9 +488,9 @@ TRANSLATIONS = {
         "en": "❌ Cancel",
     },
     "btn.admin_panel": {
-        "ru": "🔧 Админ-панель",
-        "uz": "🔧 Admin panel",
-        "en": "🔧 Admin panel",
+        "ru": "⚙️ Админ-панель",
+        "uz": "⚙️ Admin panel",
+        "en": "⚙️ Admin panel",
     },
     "btn.admin_broadcast": {
         "ru": "📨 Рассылка",
@@ -462,25 +499,25 @@ TRANSLATIONS = {
     },
     "admin.broadcast_prompt": {
         "ru": (
-            "📨 <b>Массовая рассылка</b>\n\n"
-            "Отправь текст/фото/видео для рассылки.\n"
-            "Поддерживается HTML-разметка."
+            f"{E['plane']} <b>Массовая рассылка</b>\n\n"
+            f"Отправь текст/фото/видео для рассылки.\n"
+            f"Поддерживается HTML-разметка."
         ),
         "uz": (
-            "📨 <b>Ommaviy xabar</b>\n\n"
-            "Yuborish uchun matn/rasm/video yuboring.\n"
-            "HTML formatlash qo'llab-quvvatlanadi."
+            f"{E['plane']} <b>Ommaviy xabar</b>\n\n"
+            f"Yuborish uchun matn/rasm/video yuboring.\n"
+            f"HTML formatlash qo'llab-quvvatlanadi."
         ),
         "en": (
-            "📨 <b>Mass broadcast</b>\n\n"
-            "Send text/photo/video to broadcast.\n"
-            "HTML formatting is supported."
+            f"{E['plane']} <b>Mass broadcast</b>\n\n"
+            f"Send text/photo/video to broadcast.\n"
+            f"HTML formatting is supported."
         ),
     },
     "admin.broadcast_preview": {
-        "ru": "👆 <b>Предпросмотр</b>\n\nОтправить это сообщение всем юзерам?",
-        "uz": "👆 <b>Oldindan ko'rish</b>\n\nBu xabarni barcha foydalanuvchilarga yuborishni xohlaysizmi?",
-        "en": "👆 <b>Preview</b>\n\nSend this message to all users?",
+        "ru": f"{E['eye']} <b>Предпросмотр</b>\n\nОтправить это сообщение всем юзерам?",
+        "uz": f"{E['eye']} <b>Oldindan ko'rish</b>\n\nBu xabarni barcha foydalanuvchilarga yuborishni xohlaysizmi?",
+        "en": f"{E['eye']} <b>Preview</b>\n\nSend this message to all users?",
     },
     "admin.broadcast_confirm": {
         "ru": "✅ Да, отправить",
@@ -493,28 +530,28 @@ TRANSLATIONS = {
         "en": "❌ Cancel",
     },
     "admin.broadcast_started": {
-        "ru": "📨 Рассылка запущена... Ожидай отчёт.",
-        "uz": "📨 Xabar yuborilmoqda... Hisobotni kuting.",
-        "en": "📨 Broadcast started... Wait for report.",
+        "ru": f"{E['plane']} Рассылка запущена... Ожидай отчёт.",
+        "uz": f"{E['plane']} Xabar yuborilmoqda... Hisobotni kuting.",
+        "en": f"{E['plane']} Broadcast started... Wait for report.",
     },
     "admin.broadcast_done": {
         "ru": (
-            "📊 <b>Рассылка завершена!</b>\n\n"
-            "✅ Доставлено: <b>{success}</b>\n"
-            "❌ Ошибок: <b>{failed}</b>\n"
-            "👥 Всего: <b>{total}</b>"
+            f"{E['chart']} <b>Рассылка завершена!</b>\n\n"
+            f"{E['check']} Доставлено: <b>{{success}}</b>\n"
+            f"{E['cross']} Ошибок: <b>{{failed}}</b>\n"
+            f"{E['users']} Всего: <b>{{total}}</b>"
         ),
         "uz": (
-            "📊 <b>Xabar yuborish tugadi!</b>\n\n"
-            "✅ Yetkazildi: <b>{success}</b>\n"
-            "❌ Xatolar: <b>{failed}</b>\n"
-            "👥 Jami: <b>{total}</b>"
+            f"{E['chart']} <b>Xabar yuborish tugadi!</b>\n\n"
+            f"{E['check']} Yetkazildi: <b>{{success}}</b>\n"
+            f"{E['cross']} Xatolar: <b>{{failed}}</b>\n"
+            f"{E['users']} Jami: <b>{{total}}</b>"
         ),
         "en": (
-            "📊 <b>Broadcast complete!</b>\n\n"
-            "✅ Delivered: <b>{success}</b>\n"
-            "❌ Failed: <b>{failed}</b>\n"
-            "👥 Total: <b>{total}</b>"
+            f"{E['chart']} <b>Broadcast complete!</b>\n\n"
+            f"{E['check']} Delivered: <b>{{success}}</b>\n"
+            f"{E['cross']} Failed: <b>{{failed}}</b>\n"
+            f"{E['users']} Total: <b>{{total}}</b>"
         ),
     },
 }
