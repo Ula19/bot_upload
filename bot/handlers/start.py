@@ -156,7 +156,7 @@ async def change_language(callback: CallbackQuery) -> None:
 async def set_language(callback: CallbackQuery) -> None:
     """Устанавливает язык"""
     lang = callback.data.replace("set_lang_", "")
-    if lang not in ("ru", "uz"):
+    if lang not in ("ru", "uz", "en"):
         return
 
     async with async_session() as session:
