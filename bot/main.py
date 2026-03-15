@@ -11,6 +11,7 @@ from bot.config import settings
 from bot.database import engine
 from bot.database.models import Base
 from bot.handlers import admin, download, start
+from bot.middlewares.rate_limit import RateLimitMiddleware
 from bot.middlewares.subscription import SubscriptionMiddleware
 
 # настраиваем логирование
@@ -41,9 +42,31 @@ async def on_startup(bot: Bot) -> None:
     bot_info = await bot.get_me()
     logger.info(f"Бот запущен: @{bot_info.username}")
 
+    # health-check: уведомляем админов о запуске
+    for admin_id in settings.admin_id_list:
+        try:
+            await bot.send_message(
+                admin_id,
+                "✅ <b>Бот запущен!</b>\n\n"
+                f"🤖 @{bot_info.username}\n"
+                f"📅 Перезапуск выполнен успешно",
+            )
+        except Exception as e:
+            logger.warning(f"Не удалось уведомить админа {admin_id}: {e}")
+
 
 async def on_shutdown(bot: Bot) -> None:
     """Действия при остановке бота"""
+    # уведомляем админов об остановке
+    for admin_id in settings.admin_id_list:
+        try:
+            await bot.send_message(
+                admin_id,
+                "🔴 <b>Бот остановлен</b>",
+            )
+        except Exception:
+            pass  # бот уже выключается — ок
+
     await engine.dispose()
     logger.info("Бот остановлен, соединение с БД закрыто")
 
@@ -64,7 +87,8 @@ async def main() -> None:
     dp.include_router(admin.router)      # /admin — второй
     dp.include_router(download.router)   # ссылки Instagram — последний
 
-    # мидлварь проверки подписки на каналы
+    # мидлвари (порядок: rate limit → подписка)
+    dp.message.middleware(RateLimitMiddleware())
     dp.message.middleware(SubscriptionMiddleware())
     dp.callback_query.middleware(SubscriptionMiddleware())
 

@@ -209,6 +209,10 @@ TRANSLATIONS = {
         "ru": "❌ <b>Не удалось скачать</b>\n\nПопробуй позже или проверь ссылку.",
         "uz": "❌ <b>Yuklab olib bo'lmadi</b>\n\nKeyinroq urinib ko'ring yoki havolani tekshiring.",
     },
+    "error.rate_limit": {
+        "ru": "⏳ <b>Слишком много запросов!</b>\n\nПодожди {seconds} секунд и попробуй снова.",
+        "uz": "⏳ <b>Juda ko'p so'rovlar!</b>\n\n{seconds} soniya kuting va qayta urinib ko'ring.",
+    },
 
     # === Выбор языка ===
     "lang.choose": {
