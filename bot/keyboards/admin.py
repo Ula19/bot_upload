@@ -12,6 +12,7 @@ def get_admin_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
             InlineKeyboardButton(
                 text=t("btn.admin_stats", lang),
                 callback_data="admin_stats",
+                style="success",
                 icon_custom_emoji_id=E_ID["chart"],
             ),
         ],
@@ -19,6 +20,7 @@ def get_admin_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
             InlineKeyboardButton(
                 text=t("btn.admin_channels", lang),
                 callback_data="admin_channels",
+                style="success",
                 icon_custom_emoji_id=E_ID["megaphone"],
             ),
         ],
@@ -26,6 +28,7 @@ def get_admin_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
             InlineKeyboardButton(
                 text=t("btn.admin_broadcast", lang),
                 callback_data="admin_broadcast",
+                style="success",
                 icon_custom_emoji_id=E_ID["plane"],
             ),
         ],
@@ -33,6 +36,7 @@ def get_admin_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
             InlineKeyboardButton(
                 text=t("btn.admin_home", lang),
                 callback_data="back_to_menu",
+                style="danger",
                 icon_custom_emoji_id=E_ID["home"],
             ),
         ],
@@ -52,6 +56,7 @@ def get_channels_keyboard(
                 InlineKeyboardButton(
                     text=f"🗑 {ch.title}",
                     callback_data=f"admin_del_{ch.channel_id}",
+                    style="danger",
                     icon_custom_emoji_id=E_ID["trash"],
                 ),
             ])
@@ -60,6 +65,7 @@ def get_channels_keyboard(
         InlineKeyboardButton(
             text=t("btn.admin_add", lang),
             callback_data="admin_add_channel",
+            style="success",
             icon_custom_emoji_id=E_ID["plus"],
         ),
     ])
@@ -67,6 +73,7 @@ def get_channels_keyboard(
         InlineKeyboardButton(
             text=t("btn.admin_back", lang),
             callback_data="admin_cancel",
+            style="danger",
             icon_custom_emoji_id=E_ID["back"],
         ),
     ])
@@ -80,6 +87,7 @@ def get_cancel_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
             InlineKeyboardButton(
                 text=t("btn.admin_cancel", lang),
                 callback_data="admin_cancel",
+                style="danger",
                 icon_custom_emoji_id=E_ID["cross"],
             ),
         ],

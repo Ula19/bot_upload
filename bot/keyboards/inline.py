@@ -39,6 +39,7 @@ def get_start_keyboard(
             InlineKeyboardButton(
                 text=t("btn.language", lang),
                 callback_data="change_language",
+                style="success",
                 icon_custom_emoji_id=E_ID["globe"],
             ),
         ],
@@ -105,14 +106,17 @@ def get_language_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton(
                 text="🇷🇺 Русский",
                 callback_data="set_lang_ru",
+                style="success",
             ),
             InlineKeyboardButton(
                 text="🇺🇿 O'zbek",
                 callback_data="set_lang_uz",
+                style="success",
             ),
             InlineKeyboardButton(
                 text="🇬🇧 English",
                 callback_data="set_lang_en",
+                style="success",
             ),
         ],
     ]
