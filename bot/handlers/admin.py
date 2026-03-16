@@ -12,6 +12,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from bot.emojis import E_ID
 
 from bot.config import settings
 from bot.database import async_session
@@ -261,10 +262,14 @@ async def confirm_delete_channel(callback: CallbackQuery) -> None:
             InlineKeyboardButton(
                 text=t("btn.admin_confirm_del", lang),
                 callback_data=f"admin_confirm_del_{channel_id}",
+                style="danger",
+                icon_custom_emoji_id=E_ID["check"],
             ),
             InlineKeyboardButton(
                 text=t("btn.admin_cancel_del", lang),
                 callback_data="admin_channels",
+                style="success",
+                icon_custom_emoji_id=E_ID["cross"],
             ),
         ],
     ])
@@ -382,10 +387,14 @@ async def preview_broadcast(message: Message, state: FSMContext) -> None:
             InlineKeyboardButton(
                 text=t("admin.broadcast_confirm", lang),
                 callback_data="admin_broadcast_confirm",
+                style="success",
+                icon_custom_emoji_id=E_ID["check"],
             ),
             InlineKeyboardButton(
                 text=t("admin.broadcast_cancel", lang),
                 callback_data="admin_cancel",
+                style="danger",
+                icon_custom_emoji_id=E_ID["cross"],
             ),
         ],
     ])

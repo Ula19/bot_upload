@@ -1,99 +1,64 @@
 """Мультиязычность — русский, узбекский, английский
 Использование: from bot.i18n import t
   t("start.welcome", lang="en", name="John")
-
-Кастомные эмоджи из пака tgmacicons используются в текстах сообщений
 """
-
-# кастомные эмоджи из tgmacicons (для текстов сообщений)
-E = {
-    "download": '<tg-emoji emoji-id="5258336354642697821">⬇️</tg-emoji>',
-    "profile":  '<tg-emoji emoji-id="5258362837411045098">👤</tg-emoji>',
-    "book":     '<tg-emoji emoji-id="5258328383183396223">📖</tg-emoji>',
-    "star":     '<tg-emoji emoji-id="5258185631355378853">⭐️</tg-emoji>',
-    "folder":   '<tg-emoji emoji-id="5258514780469075716">📂</tg-emoji>',
-    "cross":    '<tg-emoji emoji-id="5258226313285607065">❌</tg-emoji>',
-    "check":    '<tg-emoji emoji-id="5260726538302660868">✅</tg-emoji>',
-    "megaphone":'<tg-emoji emoji-id="5260268501515377807">📣</tg-emoji>',
-    "camera":   '<tg-emoji emoji-id="5258205968025525531">📸</tg-emoji>',
-    "link":     '<tg-emoji emoji-id="5260730055880876557">⛓</tg-emoji>',
-    "lock":     '<tg-emoji emoji-id="5258476306152038031">🔒</tg-emoji>',
-    "clock":    '<tg-emoji emoji-id="5258258882022612173">⏲</tg-emoji>',
-    "chart":    '<tg-emoji emoji-id="5258391025281408576">📈</tg-emoji>',
-    "gear":     '<tg-emoji emoji-id="5258096772776991776">⚙</tg-emoji>',
-    "home":     '<tg-emoji emoji-id="5257963315258204021">🏘</tg-emoji>',
-    "plus":     '<tg-emoji emoji-id="5258108352008823107">➕</tg-emoji>',
-    "plane":    '<tg-emoji emoji-id="5258115571848846212">✈️</tg-emoji>',
-    "pin":      '<tg-emoji emoji-id="5258461531464539536">📌</tg-emoji>',
-    "video":    '<tg-emoji emoji-id="5258077307985207053">📹</tg-emoji>',
-    "users":    '<tg-emoji emoji-id="5258513401784573443">👥</tg-emoji>',
-    "info":     '<tg-emoji emoji-id="5258503720928288433">ℹ️</tg-emoji>',
-    "bulb":     '<tg-emoji emoji-id="5258216851472654189">💡</tg-emoji>',
-    "warning":  '<tg-emoji emoji-id="5258474669769497337">❗️</tg-emoji>',
-    "back":     '<tg-emoji emoji-id="5258236805890710909">⬅️</tg-emoji>',
-    "package":  '<tg-emoji emoji-id="5258134813302332906">📦</tg-emoji>',
-    "edit":     '<tg-emoji emoji-id="5258331647358540449">✍️</tg-emoji>',
-    "bot":      '<tg-emoji emoji-id="5258093637450866522">🤖</tg-emoji>',
-    "refresh":  '<tg-emoji emoji-id="5258420634785947640">🔄</tg-emoji>',
-    "eye":      '<tg-emoji emoji-id="5253959125838090076">👁</tg-emoji>',
-    "search":   '<tg-emoji emoji-id="5429571366384842791">🔎</tg-emoji>',
-}
+from bot.emojis import E
 
 
 TRANSLATIONS = {
     # === /start ===
     "start.welcome": {
         "ru": (
-            f"👋 <b>Привет, {{name}}!</b>\n\n"
-            f"{E['video']} Я помогу тебе скачать видео и фото из Instagram.\n\n"
+            f"{E['bot']} <b>Привет, {{name}}!</b>\n\n"
+            f"{E['video']} Я помогу тебе скачать видео, фото и истории из Instagram.\n\n"
             f"{E['pin']} <b>Как пользоваться:</b>\n"
             f"Просто отправь мне ссылку на пост, Reels или историю — "
-            f"и я пришлю тебе медиа! 🚀\n\n"
+            f"и я пришлю тебе медиа! {E['plane']}\n\n"
             f"Выбери действие ниже:"
         ),
         "uz": (
-            f"👋 <b>Salom, {{name}}!</b>\n\n"
-            f"{E['video']} Instagram'dan video va rasm yuklab olishda yordam beraman.\n\n"
+            f"{E['bot']} <b>Salom, {{name}}!</b>\n\n"
+            f"{E['video']} Instagram'dan video, rasm va Stories yuklab olishda yordam beraman.\n\n"
             f"{E['pin']} <b>Qanday foydalanish:</b>\n"
             f"Menga post, Reels yoki story havolasini yuboring — "
-            f"men sizga media faylni yuboraman! 🚀\n\n"
+            f"men sizga media faylni yuboraman! {E['plane']}\n\n"
             f"Quyidagi tugmalardan birini tanlang:"
         ),
         "en": (
-            f"👋 <b>Hello, {{name}}!</b>\n\n"
-            f"{E['video']} I'll help you download videos and photos from Instagram.\n\n"
+            f"{E['bot']} <b>Hello, {{name}}!</b>\n\n"
+            f"{E['video']} I'll help you download videos, photos and Stories from Instagram.\n\n"
             f"{E['pin']} <b>How to use:</b>\n"
             f"Just send me a link to a post, Reels or Story — "
-            f"and I'll send you the media! 🚀\n\n"
+            f"and I'll send you the media! {E['plane']}\n\n"
             f"Choose an action below:"
         ),
     },
 
-    # === Кнопки главного меню (Unicode — кастомные тут не работают) ===
+    # === Кнопки главного меню (иконки через icon_custom_emoji_id) ===
     "btn.download": {
-        "ru": "📥 Скачать видео",
-        "uz": "📥 Video yuklab olish",
-        "en": "📥 Download video",
+        "ru": "Скачать видео",
+        "uz": "Video yuklab olish",
+        "en": "Download video",
     },
     "btn.profile": {
-        "ru": "👤 Мой профиль",
-        "uz": "👤 Mening profilim",
-        "en": "👤 My profile",
+        "ru": "Мой профиль",
+        "uz": "Mening profilim",
+        "en": "My profile",
     },
     "btn.help": {
-        "ru": "❓ Помощь",
-        "uz": "❓ Yordam",
-        "en": "❓ Help",
+        "ru": "Помощь",
+        "uz": "Yordam",
+        "en": "Help",
     },
     "btn.back": {
-        "ru": "◀️ Назад",
-        "uz": "◀️ Orqaga",
-        "en": "◀️ Back",
+        "ru": "Назад",
+        "uz": "Orqaga",
+        "en": "Back",
     },
     "btn.language": {
-        "ru": "🌐 Сменить язык",
-        "uz": "🌐 Tilni o'zgartirish",
-        "en": "🌐 Change language",
+        "ru": "Сменить язык",
+        "uz": "Tilni o'zgartirish",
+        "en": "Change language",
     },
 
     # === Скачивание ===
@@ -201,21 +166,21 @@ TRANSLATIONS = {
     # === Подписка ===
     "sub.welcome": {
         "ru": (
-            f"👋 <b>Привет!</b>\n\n"
+            f"{E['bot']} <b>Привет!</b>\n\n"
             f"{E['video']} Этот бот скачивает видео, фото и Stories "
             f"из Instagram — быстро и бесплатно!\n\n"
             f"{E['lock']} <b>Для начала подпишись на каналы ниже:</b>\n\n"
             f"После подписки нажми «{E['check']} Проверить подписку»"
         ),
         "uz": (
-            f"👋 <b>Salom!</b>\n\n"
+            f"{E['bot']} <b>Salom!</b>\n\n"
             f"{E['video']} Bu bot Instagram'dan video, rasm va Stories "
             f"yuklab oladi — tez va bepul!\n\n"
             f"{E['lock']} <b>Boshlash uchun quyidagi kanallarga obuna bo'ling:</b>\n\n"
             f"Obuna bo'lgandan keyin «{E['check']} Obunani tekshirish» tugmasini bosing"
         ),
         "en": (
-            f"👋 <b>Hello!</b>\n\n"
+            f"{E['bot']} <b>Hello!</b>\n\n"
             f"{E['video']} This bot downloads videos, photos and Stories "
             f"from Instagram — fast and free!\n\n"
             f"{E['lock']} <b>To start, subscribe to the channels below:</b>\n\n"
@@ -239,39 +204,39 @@ TRANSLATIONS = {
     "sub.success": {
         "ru": (
             f"{E['check']} <b>Отлично, {{name}}!</b>\n\n"
-            f"Теперь ты можешь пользоваться ботом! 🚀\n\n"
+            f"Теперь ты можешь пользоваться ботом! {E['plane']}\n\n"
             f"Отправь ссылку на пост, Reels или историю Instagram."
         ),
         "uz": (
             f"{E['check']} <b>Ajoyib, {{name}}!</b>\n\n"
-            f"Endi siz botdan foydalanishingiz mumkin! 🚀\n\n"
+            f"Endi siz botdan foydalanishingiz mumkin! {E['plane']}\n\n"
             f"Instagram post, Reels yoki story havolasini yuboring."
         ),
         "en": (
             f"{E['check']} <b>Great, {{name}}!</b>\n\n"
-            f"You can now use the bot! 🚀\n\n"
+            f"You can now use the bot! {E['plane']}\n\n"
             f"Send a link to an Instagram post, Reels or Story."
         ),
     },
     "btn.check_sub": {
-        "ru": "✅ Проверить подписку",
-        "uz": "✅ Obunani tekshirish",
-        "en": "✅ Check subscription",
+        "ru": "Проверить подписку",
+        "uz": "Obunani tekshirish",
+        "en": "Check subscription",
     },
     "sub.check_alert_fail": {
-        "ru": "❌ Подпишись на все каналы!",
-        "uz": "❌ Barcha kanallarga obuna bo'ling!",
-        "en": "❌ Subscribe to all channels!",
+        "ru": "Подпишись на все каналы!",
+        "uz": "Barcha kanallarga obuna bo'ling!",
+        "en": "Subscribe to all channels!",
     },
     "sub.check_alert_ok": {
-        "ru": "✅ Подписка подтверждена!",
-        "uz": "✅ Obuna tasdiqlandi!",
-        "en": "✅ Subscription confirmed!",
+        "ru": "Подписка подтверждена!",
+        "uz": "Obuna tasdiqlandi!",
+        "en": "Subscription confirmed!",
     },
     "sub.not_required": {
-        "ru": "✅ Подписка не требуется!",
-        "uz": "✅ Obuna talab qilinmaydi!",
-        "en": "✅ No subscription required!",
+        "ru": "Подписка не требуется!",
+        "uz": "Obuna talab qilinmaydi!",
+        "en": "No subscription required!",
     },
 
     # === Ошибки ===
@@ -323,9 +288,9 @@ TRANSLATIONS = {
 
     # === Выбор языка ===
     "lang.choose": {
-        "ru": "🌐 <b>Выберите язык:</b>",
-        "uz": "🌐 <b>Tilni tanlang:</b>",
-        "en": "🌐 <b>Choose language:</b>",
+        "ru": f"{E['gear']} <b>Выберите язык:</b>",
+        "uz": f"{E['gear']} <b>Tilni tanlang:</b>",
+        "en": f"{E['gear']} <b>Choose language:</b>",
     },
     "lang.changed": {
         "ru": f"{E['check']} Язык изменён на русский",
@@ -448,54 +413,54 @@ TRANSLATIONS = {
         "en": f"{E['cross']} Could not parse the link.\nTry again:",
     },
     "btn.admin_stats": {
-        "ru": "📊 Статистика",
-        "uz": "📊 Statistika",
-        "en": "📊 Statistics",
+        "ru": "Статистика",
+        "uz": "Statistika",
+        "en": "Statistics",
     },
     "btn.admin_channels": {
-        "ru": "📢 Каналы",
-        "uz": "📢 Kanallar",
-        "en": "📢 Channels",
+        "ru": "Каналы",
+        "uz": "Kanallar",
+        "en": "Channels",
     },
     "btn.admin_home": {
-        "ru": "🏠 Главное меню",
-        "uz": "🏠 Bosh menyu",
-        "en": "🏠 Main menu",
+        "ru": "Главное меню",
+        "uz": "Bosh menyu",
+        "en": "Main menu",
     },
     "btn.admin_add": {
-        "ru": "➕ Добавить канал",
-        "uz": "➕ Kanal qo'shish",
-        "en": "➕ Add channel",
+        "ru": "Добавить канал",
+        "uz": "Kanal qo'shish",
+        "en": "Add channel",
     },
     "btn.admin_back": {
-        "ru": "◀️ Назад",
-        "uz": "◀️ Orqaga",
-        "en": "◀️ Back",
+        "ru": "Назад",
+        "uz": "Orqaga",
+        "en": "Back",
     },
     "btn.admin_cancel": {
-        "ru": "❌ Отмена",
-        "uz": "❌ Bekor qilish",
-        "en": "❌ Cancel",
+        "ru": "Отмена",
+        "uz": "Bekor qilish",
+        "en": "Cancel",
     },
     "btn.admin_confirm_del": {
-        "ru": "✅ Да, удалить",
-        "uz": "✅ Ha, o'chirish",
-        "en": "✅ Yes, delete",
+        "ru": "Да, удалить",
+        "uz": "Ha, o'chirish",
+        "en": "Yes, delete",
     },
     "btn.admin_cancel_del": {
-        "ru": "❌ Отмена",
-        "uz": "❌ Bekor qilish",
-        "en": "❌ Cancel",
+        "ru": "Отмена",
+        "uz": "Bekor qilish",
+        "en": "Cancel",
     },
     "btn.admin_panel": {
-        "ru": "⚙️ Админ-панель",
-        "uz": "⚙️ Admin panel",
-        "en": "⚙️ Admin panel",
+        "ru": "Админ-панель",
+        "uz": "Admin panel",
+        "en": "Admin panel",
     },
     "btn.admin_broadcast": {
-        "ru": "📨 Рассылка",
-        "uz": "📨 Xabar yuborish",
-        "en": "📨 Broadcast",
+        "ru": "Рассылка",
+        "uz": "Xabar yuborish",
+        "en": "Broadcast",
     },
     "admin.broadcast_prompt": {
         "ru": (
@@ -520,14 +485,14 @@ TRANSLATIONS = {
         "en": f"{E['eye']} <b>Preview</b>\n\nSend this message to all users?",
     },
     "admin.broadcast_confirm": {
-        "ru": "✅ Да, отправить",
-        "uz": "✅ Ha, yuborish",
-        "en": "✅ Yes, send",
+        "ru": "Да, отправить",
+        "uz": "Ha, yuborish",
+        "en": "Yes, send",
     },
     "admin.broadcast_cancel": {
-        "ru": "❌ Отмена",
-        "uz": "❌ Bekor qilish",
-        "en": "❌ Cancel",
+        "ru": "Отмена",
+        "uz": "Bekor qilish",
+        "en": "Cancel",
     },
     "admin.broadcast_started": {
         "ru": f"{E['plane']} Рассылка запущена... Ожидай отчёт.",
