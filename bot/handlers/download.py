@@ -69,15 +69,21 @@ async def _process_download(
 
     result = None
     try:
-        if is_story_url(clean_url):
-            story_data = await download_story(clean_url, downloader.download_dir)
-            result = DownloadResult(
-                file_path=story_data["file_path"],
-                media_type=story_data["media_type"],
-                title=story_data["title"],
-            )
-        else:
+        # сначала пробуем через Cobalt (работает для всех типов)
+        try:
             result = await downloader.download(clean_url)
+        except Exception as cobalt_err:
+            # Cobalt не смог — для Stories пробуем private API
+            if is_story_url(clean_url):
+                logger.warning(f"Cobalt не смог скачать Story, пробуем private API: {cobalt_err}")
+                story_data = await download_story(clean_url, downloader.download_dir)
+                result = DownloadResult(
+                    file_path=story_data["file_path"],
+                    media_type=story_data["media_type"],
+                    title=story_data["title"],
+                )
+            else:
+                raise
 
         file_size = os.path.getsize(result.file_path)
         if file_size > 50 * 1024 * 1024:
