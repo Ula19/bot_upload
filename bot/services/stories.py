@@ -126,6 +126,8 @@ async def download_story(url: str, download_dir: str) -> dict:
         )
 
     username, story_id = parse_story_url(url)
+    proxy = settings.instagram_proxy or None
+    logger.info(f"Stories: proxy={'да (' + proxy + ')' if proxy else 'нет'}")
 
     async with aiohttp.ClientSession() as session:
         # получаем user_id
