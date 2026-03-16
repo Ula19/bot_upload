@@ -10,7 +10,7 @@ TRANSLATIONS = {
     "start.welcome": {
         "ru": (
             f"{E['bot']} <b>Привет, {{name}}!</b>\n\n"
-            f"{E['video']} Я помогу тебе скачать видео и фото из Instagram.\n\n"
+            f"{E['video']} Я помогу тебе скачать видео, фото и истории из Instagram.\n\n"
             f"{E['pin']} <b>Как пользоваться:</b>\n"
             f"Просто отправь мне ссылку на пост, Reels или историю — "
             f"и я пришлю тебе медиа! {E['plane']}\n\n"
@@ -18,7 +18,7 @@ TRANSLATIONS = {
         ),
         "uz": (
             f"{E['bot']} <b>Salom, {{name}}!</b>\n\n"
-            f"{E['video']} Instagram'dan video va rasm yuklab olishda yordam beraman.\n\n"
+            f"{E['video']} Instagram'dan video, rasm va Stories yuklab olishda yordam beraman.\n\n"
             f"{E['pin']} <b>Qanday foydalanish:</b>\n"
             f"Menga post, Reels yoki story havolasini yuboring — "
             f"men sizga media faylni yuboraman! {E['plane']}\n\n"
@@ -26,7 +26,7 @@ TRANSLATIONS = {
         ),
         "en": (
             f"{E['bot']} <b>Hello, {{name}}!</b>\n\n"
-            f"{E['video']} I'll help you download videos and photos from Instagram.\n\n"
+            f"{E['video']} I'll help you download videos, photos and Stories from Instagram.\n\n"
             f"{E['pin']} <b>How to use:</b>\n"
             f"Just send me a link to a post, Reels or Story — "
             f"and I'll send you the media! {E['plane']}\n\n"
