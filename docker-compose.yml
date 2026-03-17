@@ -51,6 +51,9 @@ services:
     restart: unless-stopped
     environment:
       API_URL: "http://cobalt:9000"
+      COOKIE_PATH: "/cookies.json"
+    volumes:
+      - ./cobalt_cookies.json:/cookies.json:ro
 
 volumes:
   postgres-data:
