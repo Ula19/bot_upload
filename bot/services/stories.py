@@ -38,9 +38,20 @@ def is_story_url(url: str) -> bool:
 _user_id_cache: dict[str, str] = {}
 
 
-def _get_proxy() -> str | None:
-    """Возвращает прокси или None"""
-    return settings.instagram_proxy or None
+def _get_proxy() -> tuple[str | None, aiohttp.BasicAuth | None]:
+    """Возвращает (proxy_url, proxy_auth) или (None, None)"""
+    proxy_url = settings.instagram_proxy or None
+    if not proxy_url:
+        return None, None
+    # парсим user:pass из URL если есть (aiohttp не умеет сам)
+    from urllib.parse import urlparse
+    parsed = urlparse(proxy_url)
+    if parsed.username:
+        auth = aiohttp.BasicAuth(parsed.username, parsed.password or "")
+        # URL без логина/пароля
+        clean_url = f"{parsed.scheme}://{parsed.hostname}:{parsed.port}"
+        return clean_url, auth
+    return proxy_url, None
 
 
 async def get_user_id(session: aiohttp.ClientSession, username: str) -> str:
@@ -52,11 +63,14 @@ async def get_user_id(session: aiohttp.ClientSession, username: str) -> str:
     url = f"https://i.instagram.com/api/v1/users/web_profile_info/?username={username}"
     cookies = {"sessionid": settings.instagram_session_id}
 
+    proxy_url, proxy_auth = _get_proxy()
+
     # ретрай при 429
     for attempt in range(3):
         async with session.get(
             url, headers=INSTAGRAM_HEADERS, cookies=cookies,
-            proxy=_get_proxy(), timeout=aiohttp.ClientTimeout(total=10),
+            proxy=proxy_url, proxy_auth=proxy_auth,
+            timeout=aiohttp.ClientTimeout(total=10),
         ) as resp:
             if resp.status == 429:
                 delay = 5 * (attempt + 1)
@@ -87,9 +101,12 @@ async def get_story_media(
     url = f"https://i.instagram.com/api/v1/feed/reels_media/?reel_ids={user_id}"
     cookies = {"sessionid": settings.instagram_session_id}
 
+    proxy_url, proxy_auth = _get_proxy()
+
     async with session.get(
         url, headers=INSTAGRAM_HEADERS, cookies=cookies,
-        proxy=_get_proxy(), timeout=aiohttp.ClientTimeout(total=10),
+        proxy=proxy_url, proxy_auth=proxy_auth,
+        timeout=aiohttp.ClientTimeout(total=10),
     ) as resp:
         if resp.status != 200:
             raise RuntimeError(f"Не удалось получить истории: HTTP {resp.status}")
@@ -121,7 +138,8 @@ async def download_story(url: str, download_dir: str) -> dict:
         )
 
     username, story_id = parse_story_url(url)
-    proxy = "да" if _get_proxy() else "нет"
+    proxy_url, _ = _get_proxy()
+    proxy = "да" if proxy_url else "нет"
     logger.info(f"Stories: user=@{username}, proxy={proxy}")
 
     async with aiohttp.ClientSession() as session:
