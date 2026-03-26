@@ -40,8 +40,8 @@ class InstagramDownloader:
         self.download_dir = tempfile.mkdtemp(prefix="insta_bot_")
         self.cobalt_url = settings.cobalt_api_url
 
-    async def download(self, url: str) -> DownloadResult:
-        """Скачивает медиа по ссылке Instagram"""
+    async def download(self, url: str) -> list[DownloadResult]:
+        """Скачивает медиа по ссылке Instagram. Возвращает список (карусель или 1 элемент)"""
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
@@ -73,10 +73,11 @@ class InstagramDownloader:
             # redirect — прямая ссылка (видео)
             if status == "redirect":
                 media_url = data["url"]
-                return await self._download_file(
+                result = await self._download_file(
                     session, media_url, "video",
                     filename=data.get("filename"),
                 )
+                return [result]
 
             # tunnel — Cobalt проксирует файл
             if status == "tunnel":
@@ -84,9 +85,10 @@ class InstagramDownloader:
                 # определяем тип по filename
                 filename = data.get("filename", "")
                 media_type = self._guess_type(filename)
-                return await self._download_file(
+                result = await self._download_file(
                     session, media_url, media_type, filename=filename,
                 )
+                return [result]
 
             # picker — несколько элементов (фото-карусель)
             if status == "picker":
@@ -94,12 +96,15 @@ class InstagramDownloader:
                 if not picker:
                     raise RuntimeError("Cobalt вернул пустой picker")
 
-                # скачиваем первый элемент
-                item = picker[0]
-                media_type = item.get("type", "photo")
-                return await self._download_file(
-                    session, item["url"], media_type,
-                )
+                # скачиваем все элементы карусели
+                results = []
+                for item in picker:
+                    media_type = item.get("type", "photo")
+                    r = await self._download_file(
+                        session, item["url"], media_type,
+                    )
+                    results.append(r)
+                return results
 
             raise RuntimeError(f"Неизвестный статус Cobalt: {status}")
 
@@ -131,9 +136,9 @@ class InstagramDownloader:
                 raise RuntimeError(f"Не удалось скачать файл: HTTP {resp.status}")
 
             content = await resp.read()
-            # проверяем размер (лимит Telegram 50 МБ)
-            if len(content) > 50 * 1024 * 1024:
-                raise RuntimeError("Файл больше 50 МБ — лимит Telegram")
+            # проверяем размер (лимит локального Telegram API 2 ГБ)
+            if len(content) > 2000 * 1024 * 1024:
+                raise RuntimeError("Файл больше 2 ГБ — лимит локального Telegram API")
 
             with open(file_path, "wb") as f:
                 f.write(content)
@@ -164,14 +169,15 @@ class InstagramDownloader:
             return "gif"
         return "video"
 
-    def cleanup(self, result: DownloadResult) -> None:
+    def cleanup(self, results: list[DownloadResult]) -> None:
         """Удаляет временные файлы после отправки"""
-        try:
-            if os.path.exists(result.file_path):
-                os.remove(result.file_path)
-                logger.info(f"Удалён: {result.file_path}")
-        except OSError as e:
-            logger.warning(f"Не удалось удалить файл: {e}")
+        for result in results:
+            try:
+                if os.path.exists(result.file_path):
+                    os.remove(result.file_path)
+                    logger.info(f"Удалён: {result.file_path}")
+            except OSError as e:
+                logger.warning(f"Не удалось удалить файл: {e}")
 
 
 # глобальный экземпляр

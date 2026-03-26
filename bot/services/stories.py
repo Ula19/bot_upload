@@ -173,8 +173,8 @@ async def download_story(url: str, download_dir: str) -> dict:
                 raise RuntimeError(f"Не удалось скачать медиа: HTTP {resp.status}")
             content = await resp.read()
 
-            if len(content) > 50 * 1024 * 1024:
-                raise RuntimeError("Файл больше 50 МБ — лимит Telegram")
+            if len(content) > 2000 * 1024 * 1024:
+                raise RuntimeError("Файл больше 2 ГБ) — лимит локального Telegram API")
 
             with open(file_path, "wb") as f:
                 f.write(content)

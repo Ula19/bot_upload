@@ -4,7 +4,13 @@ import os
 import re
 
 from aiogram import F, Router
-from aiogram.types import CallbackQuery, FSInputFile, Message
+from aiogram.types import (
+    CallbackQuery,
+    FSInputFile,
+    InputMediaPhoto,
+    InputMediaVideo,
+    Message,
+)
 
 from bot.database import async_session
 from bot.database.crud import (
@@ -67,39 +73,54 @@ async def _process_download(
     # кэша нет — скачиваем
     status_msg = await message.answer(t("download.processing", lang))
 
-    result = None
+    results: list[DownloadResult] = []
     try:
         # сначала пробуем через Cobalt (работает для всех типов)
         try:
-            result = await downloader.download(clean_url)
+            results = await downloader.download(clean_url)
         except Exception as cobalt_err:
             # Cobalt не смог — для Stories пробуем private API
             if is_story_url(clean_url):
                 logger.warning(f"Cobalt не смог скачать Story, пробуем private API: {cobalt_err}")
                 story_data = await download_story(clean_url, downloader.download_dir)
-                result = DownloadResult(
+                results = [DownloadResult(
                     file_path=story_data["file_path"],
                     media_type=story_data["media_type"],
                     title=story_data["title"],
-                )
+                )]
             else:
                 raise
 
-        file_size = os.path.getsize(result.file_path)
-        if file_size > 50 * 1024 * 1024:
-            await status_msg.edit_text(t("error.too_large", lang))
-            return
+        # проверяем размер каждого файла
+        for r in results:
+            file_size = os.path.getsize(r.file_path)
+            if file_size > 2000 * 1024 * 1024:
+                await status_msg.edit_text(t("error.too_large", lang))
+                return
 
-        file_id = await _send_media(message, result)
-
-        if file_id:
+        if len(results) == 1:
+            # одиночный файл — отправляем как раньше + кэшируем
+            file_id = await _send_media(message, results[0])
+            if file_id:
+                async with async_session() as session:
+                    await save_download(
+                        session=session,
+                        instagram_url=clean_url,
+                        file_id=file_id,
+                        media_type=results[0].media_type,
+                    )
+                    user_obj = await get_or_create_user(
+                        session=session,
+                        telegram_id=message.from_user.id,
+                        username=message.from_user.username,
+                        full_name=message.from_user.full_name,
+                    )
+                    user_obj.download_count += 1
+                    await session.commit()
+        else:
+            # карусель — отправляем альбомом
+            await _send_media_group(message, results)
             async with async_session() as session:
-                await save_download(
-                    session=session,
-                    instagram_url=clean_url,
-                    file_id=file_id,
-                    media_type=result.media_type,
-                )
                 user_obj = await get_or_create_user(
                     session=session,
                     telegram_id=message.from_user.id,
@@ -117,8 +138,8 @@ async def _process_download(
         await status_msg.edit_text(error_text)
 
     finally:
-        if result:
-            downloader.cleanup(result)
+        if results:
+            downloader.cleanup(results)
 
 
 async def _send_media(message: Message, result: DownloadResult) -> str | None:
@@ -142,6 +163,24 @@ async def _send_media(message: Message, result: DownloadResult) -> str | None:
         return sent.photo[-1].file_id
 
     return None
+
+
+async def _send_media_group(
+    message: Message, results: list[DownloadResult]
+) -> None:
+    """Отправляет карусель альбомом через media_group"""
+    media = []
+    for i, r in enumerate(results):
+        file = FSInputFile(r.file_path)
+        # caption только на первом элементе
+        caption = f"📸 Instagram Карусель ({len(results)} фото/видео)" if i == 0 else None
+        if r.media_type == "video":
+            media.append(InputMediaVideo(media=file, caption=caption))
+        else:
+            media.append(InputMediaPhoto(media=file, caption=caption))
+
+    await message.answer_media_group(media=media)
+    logger.info(f"Карусель отправлена: {len(results)} элементов")
 
 
 async def _send_cached(
@@ -186,7 +225,7 @@ def _get_error_text(error: str, lang: str = "ru") -> str:
         return t("error.not_found", lang)
     elif "unsupported" in error_lower:
         return t("error.unsupported", lang)
-    elif "too large" in error_lower or "50 мб" in error_lower:
+    elif "too large" in error_lower or "2 гб" in error_lower:
         return t("error.too_large", lang)
     elif "timeout" in error_lower:
         return t("error.timeout", lang)
