@@ -2,7 +2,7 @@
 import logging
 
 from aiogram import F, Router
-from aiogram.filters import CommandStart
+from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
@@ -65,6 +65,21 @@ async def back_to_menu(callback: CallbackQuery) -> None:
     await callback.answer()
 
 
+@router.message(Command("menu"))
+async def cmd_menu(message: Message) -> None:
+    """Главное меню (по команде)"""
+    async with async_session() as session:
+        lang = await get_user_language(session, message.from_user.id)
+
+    await message.answer(
+        t("start.welcome", lang, name=message.from_user.first_name),
+        reply_markup=get_start_keyboard(
+            user_id=message.from_user.id, lang=lang
+        ),
+        parse_mode="HTML",
+    )
+
+
 @router.callback_query(F.data == "admin_panel")
 async def open_admin_panel(callback: CallbackQuery) -> None:
     """Открывает админ-панель через кнопку"""
@@ -122,6 +137,28 @@ async def my_profile(callback: CallbackQuery) -> None:
     await callback.answer()
 
 
+@router.message(Command("profile"))
+async def cmd_profile(message: Message) -> None:
+    """Профиль пользователя (по команде)"""
+    async with async_session() as session:
+        user = await get_or_create_user(
+            session=session,
+            telegram_id=message.from_user.id,
+            username=message.from_user.username,
+            full_name=message.from_user.full_name,
+        )
+        lang = user.language or "ru"
+
+    await message.answer(
+        t("profile.title", lang,
+            full_name=message.from_user.full_name,
+            user_id=message.from_user.id,
+            downloads=user.download_count),
+        reply_markup=get_back_keyboard(lang),
+        parse_mode="HTML",
+    )
+
+
 @router.callback_query(F.data == "help")
 async def help_handler(callback: CallbackQuery) -> None:
     """Помощь"""
@@ -134,6 +171,19 @@ async def help_handler(callback: CallbackQuery) -> None:
         parse_mode="HTML",
     )
     await callback.answer()
+
+
+@router.message(Command("help"))
+async def cmd_help(message: Message) -> None:
+    """Помощь (по команде)"""
+    async with async_session() as session:
+        lang = await get_user_language(session, message.from_user.id)
+
+    await message.answer(
+        t("help.text", lang, admin_username=settings.admin_username),
+        reply_markup=get_back_keyboard(lang),
+        parse_mode="HTML",
+    )
 
 
 # === Выбор языка ===
@@ -150,6 +200,19 @@ async def change_language(callback: CallbackQuery) -> None:
         parse_mode="HTML",
     )
     await callback.answer()
+
+
+@router.message(Command("language"))
+async def cmd_language(message: Message) -> None:
+    """Показывает выбор языка (по команде)"""
+    async with async_session() as session:
+        lang = await get_user_language(session, message.from_user.id)
+
+    await message.answer(
+        t("lang.choose", lang),
+        reply_markup=get_language_keyboard(),
+        parse_mode="HTML",
+    )
 
 
 @router.callback_query(F.data.startswith("set_lang_"))

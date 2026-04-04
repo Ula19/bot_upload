@@ -6,6 +6,8 @@ import os
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram.types import BotCommand
+from aiogram.enums import ParseMode
 from sqlalchemy import text
 
 from bot.config import settings
@@ -43,6 +45,15 @@ async def on_startup(bot: Bot) -> None:
 
     bot_info = await bot.get_me()
     logger.info(f"Бот запущен: @{bot_info.username}")
+
+    # устанавливаем меню команд
+    await bot.set_my_commands([
+        BotCommand(command="start", description="Запустить бота / Boshlash"),
+        BotCommand(command="menu", description="Главное меню / Asosiy menyu"),
+        BotCommand(command="profile", description="Мой профиль / Mening profilim"),
+        BotCommand(command="help", description="Помощь / Yordam"),
+        BotCommand(command="language", description="Сменить язык / Tilni o'zgartirish"),
+    ])
 
     # health-check: если флаг существует — значит прошлый запуск упал
     if os.path.exists(_CRASH_FLAG):
