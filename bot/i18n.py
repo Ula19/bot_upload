@@ -116,9 +116,9 @@ TRANSLATIONS = {
         "en": f"{E['camera']} Currently only videos, Reels and Stories are supported.",
     },
     "download.promo": {
-        "ru": "\n\n⚡️ Скачивай бесплатно через @{bot_username}",
-        "uz": "\n\n⚡️ @{bot_username} orqali bepul yuklab oling",
-        "en": "\n\n⚡️ Download for free via @{bot_username}",
+        "ru": f"\n\n{E['download']} Скачивай бесплатно через @{{bot_username}}",
+        "uz": f"\n\n{E['download']} @{{bot_username}} orqali bepul yuklab oling",
+        "en": f"\n\n{E['download']} Download for free via @{{bot_username}}",
     },
 
     # === Описания команд бота (для меню Telegram) ===

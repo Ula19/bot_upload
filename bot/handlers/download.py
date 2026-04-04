@@ -19,6 +19,7 @@ from bot.database.crud import (
     get_user_language,
     save_download,
 )
+from bot.emojis import E
 from bot.i18n import t
 from bot.keyboards.inline import get_back_keyboard
 from bot.services.instagram import DownloadResult, downloader
@@ -166,11 +167,11 @@ async def _send_media(message: Message, result: DownloadResult, lang: str) -> st
     file = FSInputFile(result.file_path)
 
     if result.media_type == "video":
-        emoji = "📹" if "Story" in result.title else "🎬"
+        icon = E["video"] if "Story" in result.title else E["video"]
         meta = await get_video_meta(result.file_path)
         sent = await message.answer_video(
             video=file,
-            caption=f"{emoji} {result.title}{_promo(lang)}",
+            caption=f"{icon} {result.title}{_promo(lang)}",
             width=meta.get("width"),
             height=meta.get("height"),
             duration=meta.get("duration"),
@@ -180,7 +181,7 @@ async def _send_media(message: Message, result: DownloadResult, lang: str) -> st
     elif result.media_type == "photo":
         sent = await message.answer_photo(
             photo=file,
-            caption=f"📸 {result.title}{_promo(lang)}",
+            caption=f"{E['camera']} {result.title}{_promo(lang)}",
         )
         return sent.photo[-1].file_id
 
@@ -195,7 +196,7 @@ async def _send_media_group(
     for i, r in enumerate(results):
         file = FSInputFile(r.file_path)
         # caption только на первом элементе, добавляем рекламу
-        caption = f"📸 Instagram Карусель ({len(results)} фото/видео){_promo(lang)}" if i == 0 else None
+        caption = f"{E['camera']} Instagram Карусель ({len(results)} фото/видео){_promo(lang)}" if i == 0 else None
         if r.media_type == "video":
             meta = await get_video_meta(r.file_path)
             media.append(InputMediaVideo(
@@ -235,12 +236,12 @@ def _make_caption(media_type: str, url: str, lang: str) -> str:
     if is_story_url(url):
         match = re.search(r"stories/([^/]+)", url)
         username = match.group(1) if match else "unknown"
-        emoji = "📹" if media_type == "video" else "📸"
-        return f"{emoji} Story @{username}{promo}"
+        icon = E["video"] if media_type == "video" else E["camera"]
+        return f"{icon} Story @{username}{promo}"
     elif media_type == "photo":
-        return f"📸 Instagram Фото{promo}"
+        return f"{E['camera']} Instagram Фото{promo}"
     else:
-        return f"🎬 Instagram Reels{promo}"
+        return f"{E['video']} Instagram Reels{promo}"
 
 
 def _get_error_text(error: str, lang: str = "ru") -> str:
