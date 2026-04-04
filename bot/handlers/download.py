@@ -22,8 +22,9 @@ from bot.database.crud import (
 from bot.i18n import t
 from bot.keyboards.inline import get_back_keyboard
 from bot.services.instagram import DownloadResult, downloader
-from bot.services.stories import download_story, is_story_url
+from bot.services.stories import SessionExpiredError, download_story, is_story_url
 from bot.utils.helpers import clean_instagram_url, is_instagram_url
+from bot.utils.notify_admin import notify_admins
 from bot.utils.video_meta import get_video_meta
 
 logger = logging.getLogger(__name__)
@@ -132,6 +133,17 @@ async def _process_download(
                 await session.commit()
 
         await status_msg.delete()
+
+    except SessionExpiredError as e:
+        # Сессия устарела — сообщаем юзеру и сразу уведомляем админов
+        logger.error(f"Сессия Instagram устарела: {e}")
+        await status_msg.edit_text(t("error.story_expired", lang))
+        await notify_admins(
+            message.bot,
+            "🔴 <b>INSTAGRAM_SESSION_ID устарела!</b>\n\n"
+            "Скачивание Stories не работает для всех пользователей.\n\n"
+            "Действие: обнови INSTAGRAM_SESSION_ID в .env и перезапусти бот (<code>docker compose restart bot</code>)",
+        )
 
     except Exception as e:
         logger.error(f"Ошибка скачивания {clean_url}: {e}")

@@ -10,6 +10,10 @@ from bot.config import settings
 
 logger = logging.getLogger(__name__)
 
+
+class SessionExpiredError(RuntimeError):
+    """INSTAGRAM_SESSION_ID устарела или невалидна — нужно обновить"""
+
 # Instagram private API — мобильные заголовки
 INSTAGRAM_HEADERS = {
     "User-Agent": "Instagram 275.0.0.27.98 Android (33/13; 420dpi; 1080x2400; samsung; SM-G991B; o1s; exynos2100)",
@@ -77,6 +81,10 @@ async def get_user_id(session: aiohttp.ClientSession, username: str) -> str:
                 logger.warning(f"429 от Instagram, ждём {delay}с (попытка {attempt + 1}/3)")
                 await asyncio.sleep(delay)
                 continue
+            if resp.status in (401, 403):
+                raise SessionExpiredError(
+                    f"INSTAGRAM_SESSION_ID устарела или заблокирована (HTTP {resp.status})"
+                )
             if resp.status != 200:
                 raise RuntimeError(f"Не удалось получить профиль @{username}: HTTP {resp.status}")
             data = await resp.json()
